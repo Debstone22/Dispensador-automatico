@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pantalla_principal.dart';
+import 'login.dart';
 
 
 void main() {
@@ -19,8 +19,9 @@ class MiAppSalud extends StatelessWidget {
         // Usamos un color semilla verde como en tu diseño
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4CAF50)),
       ),
-      home: const PantallaPrincipal(),
+      home: const PantallaLogin(),
     );
   }
   
 }
+ 

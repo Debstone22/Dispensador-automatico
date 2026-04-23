@@ -16,12 +16,17 @@ class _PantallaConfiguracionSlotsState extends State<PantallaConfiguracionSlots>
     'Naproxeno',
     'Ibuprofeno',
     'Deflazacort',
+    'Diclofenaco',
+    'Coltaire',
   ];
 
   // Variables para guardar la selección de cada Slot
   String _seleccionSlot1 = 'Paracetamol';
   String _seleccionSlot2 = 'Naproxeno';
   String _seleccionSlot3 = 'Seleccionar medicamento';
+  String _seleccionSlot4 = 'Seleccionar medicamento';
+  String _seleccionSlot5 = 'Seleccionar medicamento';
+  String _seleccionSlot6 = 'Seleccionar medicamento';
 
   @override
   Widget build(BuildContext context) {
@@ -35,20 +40,20 @@ class _PantallaConfiguracionSlotsState extends State<PantallaConfiguracionSlots>
             children: [
               const SizedBox(height: 20),
               // --- HEADER ---
-              const Text("Hola, María", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+              const Text("Configura tu MiniDoc", style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold)),
               const SizedBox(height: 25),
-              const Text("Configuración de Slot", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text("Selecciona el nombre, la cantidad y el horario en que se debe tomar", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 15),
 
               // --- LISTA DE SLOTS (Hacemos que esta parte sea scrolleable) ---
               Expanded(
                 child: ListView(
                   children: [
-                    // SLOT P1
+                    // SLOT 1
                     _buildSlotCard(
-                      titulo: "Slot P1",
+                      titulo: "Slot 1",
                       medicamentoSeleccionado: _seleccionSlot1,
-                      cantidad: "10",
+                      cantidad: "7",
                       hora: "08:00 AM",
                       onMedicamentoChanged: (nuevoValor) {
                         setState(() { _seleccionSlot1 = nuevoValor!; });
@@ -56,11 +61,11 @@ class _PantallaConfiguracionSlotsState extends State<PantallaConfiguracionSlots>
                     ),
                     const SizedBox(height: 15),
                     
-                    // SLOT P2
+                    // SLOT 2
                     _buildSlotCard(
-                      titulo: "Slot P2",
+                      titulo: "Slot 2",
                       medicamentoSeleccionado: _seleccionSlot2,
-                      cantidad: "10",
+                      cantidad: "30",
                       hora: "12:00 PM",
                       onMedicamentoChanged: (nuevoValor) {
                         setState(() { _seleccionSlot2 = nuevoValor!; });
@@ -68,14 +73,44 @@ class _PantallaConfiguracionSlotsState extends State<PantallaConfiguracionSlots>
                     ),
                     const SizedBox(height: 15),
 
-                    // SLOT P3
+                    // SLOT 3
                     _buildSlotCard(
-                      titulo: "Slot P3",
+                      titulo: "Slot 3",
                       medicamentoSeleccionado: _seleccionSlot3,
-                      cantidad: "10",
+                      cantidad: "20",
                       hora: "08:00 AM",
                       onMedicamentoChanged: (nuevoValor) {
                         setState(() { _seleccionSlot3 = nuevoValor!; });
+                      },
+                    ),
+                    // SLOT 4
+                    _buildSlotCard(
+                      titulo: "Slot 4",
+                      medicamentoSeleccionado: _seleccionSlot4,
+                      cantidad: "10",
+                      hora: "07:00 AM",
+                      onMedicamentoChanged: (nuevoValor) {
+                        setState(() { _seleccionSlot4 = nuevoValor!; });
+                      },
+                    ),
+                    // SLOT 5
+                    _buildSlotCard(
+                      titulo: "Slot 5",
+                      medicamentoSeleccionado: _seleccionSlot5,
+                      cantidad: "27",
+                      hora: "10:00 AM",
+                      onMedicamentoChanged: (nuevoValor) {
+                        setState(() { _seleccionSlot5 = nuevoValor!; });
+                      },
+                    ),
+                    // SLOT 6
+                    _buildSlotCard(
+                      titulo: "Slot 6",
+                      medicamentoSeleccionado: _seleccionSlot6,
+                      cantidad: "4",
+                      hora: "09:00 AM",
+                      onMedicamentoChanged: (nuevoValor) {
+                        setState(() { _seleccionSlot6 = nuevoValor!; });
                       },
                     ),
                     

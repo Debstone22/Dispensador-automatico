@@ -2,10 +2,33 @@ import 'package:flutter/material.dart';
 import 'menu_inferior.dart';
 import 'configuracion_slots.dart';
 
-class PantallaPrincipal extends StatelessWidget {
+
+
+class PantallaPrincipal extends StatefulWidget {
   const PantallaPrincipal({super.key});
 
+  @override
+  State<PantallaPrincipal> createState() => _PantallaPrincipalState();
+}
 
+class _PantallaPrincipalState extends State<PantallaPrincipal> with TickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Configuramos el latido: dura 400ms y se repite infinitamente
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    )..repeat(reverse: true); 
+  }
+  @override
+  void dispose() {
+    _controller.dispose(); // IMPORTANTE: Cerramos el controlador al salir de la pantalla
+    super.dispose();
+  }
+  
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -24,42 +47,28 @@ Widget build(BuildContext context) {
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Hola,", style: TextStyle(fontSize: 18)),
-                    Text("María", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                    Text("Hola,María", style: TextStyle(fontSize: 20)),
                   ],
                 ),
                 // Circulo de avatar
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 25,
-                  backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, color: Colors.white),
+                  backgroundImage: const NetworkImage(
+                  'https://thumbs.dreamstime.com/b/mujer-de-render-d-png-trabajando-en-tecnolog%C3%ADa-avatar-digital-port%C3%A1til-contra-fondo-transparente-384935566.jpg', 
+                  ),
                 ),
               ], // Cierre de children del Row
             ), // Cierre del Row del Header
 
             const SizedBox(height: 30),
 
-            // --- TARJETA DE ALERTA (Amarilla) ---
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF9C4),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: const [
-                  Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 30),
-                  SizedBox(width: 15),
-                  Expanded(
-                    child: Text(
-                      "Tienes medicamentos por agotarse",
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_ios, size: 16),
-                ],
-              ),
-            ),
+            // Tarjeta de Alerta
+            ScaleTransition(
+                 scale: Tween(begin: 1.0, end: 1.1).animate(
+                   CurvedAnimation(parent: _controller, curve: Curves.easeInOut)
+                 ),
+                 child: _construirTarjetaAlerta(),
+               ),
 
             const SizedBox(height: 30),
 
@@ -79,7 +88,7 @@ Widget build(BuildContext context) {
                 ),
                 child: Column(
                   children: [
-                    _buildProgressBar("Paracetamol", 0.3, Colors.redAccent),
+                    _buildProgressBar("Paracetamol", 0.3, Colors.amber),
                     _buildProgressBar("Naproxeno", 0.8, Colors.green),
                     _buildProgressBar("Ibuprofeno", 0.5, Colors.orange),
                     _buildProgressBar("Deflazacort", 0.3, Colors.redAccent),
@@ -118,7 +127,33 @@ Widget build(BuildContext context) {
   
 }
 
-
+// Método auxiliar para que el código sea más limpio (Clean Code)
+  Widget _construirTarjetaAlerta() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF9C4),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: Colors.orange.withOpacity(0.2), blurRadius: 10)
+        ],
+      ),
+      child: Row(
+        children: const [
+          Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 30),
+          SizedBox(width: 15),
+          Expanded(
+            child: Text(
+              "Tienes medicamentos por agotarse",
+              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF856404)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
   // Widget auxiliar para las barras de progreso
   Widget _buildProgressBar(String nombre, double valor, Color color) {
     return Padding(
@@ -141,5 +176,3 @@ Widget build(BuildContext context) {
       ),
     );
   }
-
-}
