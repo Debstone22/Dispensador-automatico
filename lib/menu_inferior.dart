@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'gestion_nombres.dart';
 import 'pantalla_principal.dart'; // Para poder volver al inicio si quieres
 import 'configuracion_slots.dart'; // Para el botón de "Hora"
+import 'panel_conexiones.dart'; // Para ver el harware Conectado
 
 class MenuInferior extends StatelessWidget {
   const MenuInferior({super.key});
@@ -53,6 +54,11 @@ class MenuInferior extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const PantallaConfiguracionSlots()),
+          );
+        } else if(label=='Ajustes'){
+          Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (context) => const PanelConexiones()),
           );
         }
       },
