@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'firebase_service.dart';
 
 class PanelConexiones extends StatefulWidget {
   const PanelConexiones({super.key});
@@ -12,7 +11,7 @@ class _PanelConexionesState extends State<PanelConexiones> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F5E9), // Fondo verde claro
+      backgroundColor: const Color(0xFFE8F5E9), // Fondo verde claro pastel
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -33,7 +32,7 @@ class _PanelConexionesState extends State<PanelConexiones> {
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1B5E20), // Verde oscuro
+                  color: Color(0xFF1B5E20), 
                 ),
               ),
               const SizedBox(height: 30),
@@ -62,7 +61,7 @@ class _PanelConexionesState extends State<PanelConexiones> {
                         Icon(Icons.settings_input_antenna, color: Colors.grey, size: 20),
                         SizedBox(width: 10),
                         Text(
-                          "Panel de control de conexiones",
+                          "Estado del Hardware",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -73,61 +72,56 @@ class _PanelConexionesState extends State<PanelConexiones> {
                     ),
                     const SizedBox(height: 30),
 
-                    // --- LISTA DE COMPONENTES DE HARDWARE ---
-                    _buildStatusItem(Icons.developer_board, "Estado del Arduino Uno", "Conectado", true),
-                    _buildStatusItem(Icons.wifi, "Conexión WiFi", "MiRedCasa", true),
+                    // --- LISTA ESTÁTICA DE COMPONENTES ---
+                    _buildStatusItem(Icons.developer_board, "Arduino Uno", "Conectado", true),
+                    _buildStatusItem(Icons.wifi, "Módulo WiFi (ESP)", "MiRedCasa", true),
                     _buildStatusItem(Icons.settings_applications, "Servomotores", "Calibrados", true),
-                    _buildStatusItem(Icons.schedule, "Módulo Reloj RTC", "Sincronizado", true),
-                    _buildStatusItem(Icons.volume_up, "Buzzer (Alarma)", "Operativo", true),
+                    _buildStatusItem(Icons.schedule, "Reloj RTC DS3231", "Sincronizado", true),
+                    _buildStatusItem(Icons.volume_up, "Buzzer de Alarma", "Operativo", true),
                     
-                    const Divider(height: 30, color: Colors.black12), // Separador sutil
+                    const Divider(height: 30, color: Colors.black12),
                     
-                    _buildStatusItem(Icons.history, "Última sincronización", "Hace 2 minutos", false),
+                    _buildStatusItem(Icons.history, "Último reporte", "Hace 2 minutos", false),
 
                     const SizedBox(height: 25),
 
-                    // --- BOTÓN RECONECTAR ---
+                    // --- BOTÓN RECONECTAR (SIMULADO) ---
                     SizedBox(
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Aquí irá la lógica futura para hacer un "Ping" a Supabase/Arduino
+                          // Simulación de ping al hardware
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Verificando conexión con el hardware...')),
+                            const SnackBar(
+                              content: Text('Sincronizando con Arduino... Todo está OK'),
+                              backgroundColor: Color(0xFF2E7D32),
+                            ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2962FF), // Azul brillante como en el mockup
+                          backgroundColor: const Color(0xFF2962FF), 
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
                           elevation: 2,
                         ),
                         child: const Text(
-                          "Reconectar",
+                          "Verificar Conexión",
                           style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final firebaseService = FirebaseService();
-                        // Ejecutamos la creación en cascada
-                        await firebaseService.crearUsuarioInicial();
-                        await firebaseService.crearDispositivoConSlots();
-                        await firebaseService.simularTomaDePastilla();
-                        
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('¡Base de datos Minidoc creada en Firebase!')),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
-                      child: const Text("Sembrar Base de Datos (Seed)"),
-                    ),
                   ],
                 ),
               ),
+              const SizedBox(height: 20),
+              const Center(
+                child: Text(
+                  "Modo de visualización: Hardware Local",
+                  style: TextStyle(color: Colors.black38, fontSize: 12),
+                ),
+              )
             ],
           ),
         ),
@@ -135,51 +129,31 @@ class _PanelConexionesState extends State<PanelConexiones> {
     );
   }
 
-  // --- WIDGET REUTILIZABLE PARA CADA FILA ---
-  // Esto demuestra buenas prácticas de código al no repetir estructuras
   Widget _buildStatusItem(IconData icon, String title, String subtitle, bool isHardware) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Row(
         children: [
-          // Icono con fondo verde pastel
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9), 
+              color: const Color(0xFFF1F8E9), 
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: const Color(0xFF2E7D32), size: 26),
           ),
           const SizedBox(width: 16),
-          
-          // Textos
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 13, color: Colors.black54, fontWeight: FontWeight.w500),
-                ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                ),
+                Text(title, style: const TextStyle(fontSize: 13, color: Colors.black54)),
+                Text(subtitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
-          
-          // Indicador (Punto verde o Flechita)
           if (isHardware)
-            Container(
-              width: 14,
-              height: 14,
-              decoration: const BoxDecoration(
-                color: Color(0xFF4CAF50), // Punto verde de "Todo OK"
-                shape: BoxShape.circle,
-              ),
-            )
+            const CircleAvatar(radius: 6, backgroundColor: Color(0xFF4CAF50)) // Punto verde
           else
             const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
         ],

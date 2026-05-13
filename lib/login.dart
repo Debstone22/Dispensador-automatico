@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pantalla_principal.dart'; 
 import 'dart:async';
+import 'auth_service.dart';
 
 class BannerAnimado extends StatefulWidget {
   const BannerAnimado({super.key});
@@ -145,6 +146,7 @@ class _PantallaLoginState extends State<PantallaLogin> {
   final TextEditingController _usuarioController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
   bool _isObscure = true; // Para mostrar/ocultar la contraseña
+  bool _isLoading = false; //para mostrar que esta cargando
 
 
 @override
@@ -243,11 +245,65 @@ Widget build(BuildContext context) {
                 const SizedBox(height: 30),
 
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const PantallaPrincipal()),
-                    );
+                  // Si está cargando, el botón se desactiva (null)
+                  onPressed: _isLoading ? null : () async {
+                    String email = _usuarioController.text.trim();
+                    String password = _passController.text.trim();
+
+                    // Validación rápida de campos vacíos
+                    if (email.isEmpty || password.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Por favor, ingresa tu correo y contraseña.'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Cambiamos el estado a "cargando"
+                    setState(() {
+                      _isLoading = true;
+                    });
+
+                    try {
+                      // Instanciamos tu servicio
+                      final authService = AuthService();
+                      
+                      // Intentamos iniciar sesión con Firebase
+                      final sesion = await authService.iniciarSesion(email, password);
+
+                      // Si funciona, mostramos mensaje de bienvenida y navegamos
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('¡Bienvenido ${sesion.nombre}!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const PantallaPrincipal()),
+                      );
+
+                    } catch (e) {
+                      // Si falla (clave incorrecta, no existe, etc.), capturamos el error
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error: Revise sus credenciales. ${e.toString().replaceAll('Exception: ', '')}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    } finally {
+                      // Pase lo que pase (éxito o error), quitamos el estado de carga
+                      if (mounted) {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4CAF50),
@@ -256,7 +312,14 @@ Widget build(BuildContext context) {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                     elevation: 5,
                   ),
-                  child: const Text("Iniciar Sesión", style: TextStyle(fontSize: 18)),
+                  // Si está cargando, muestra el spinner, si no, el texto
+                  child: _isLoading 
+                      ? const SizedBox(
+                          height: 25, 
+                          width: 25, 
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3)
+                        )
+                      : const Text("Iniciar Sesión", style: TextStyle(fontSize: 18)),
                 ),
 
                 const SizedBox(height: 20),
