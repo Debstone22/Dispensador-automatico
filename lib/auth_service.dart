@@ -32,6 +32,7 @@ class AuthService {
     );
 
     final uid = credential.user!.uid;
+    // Asegúrate de que en Firebase la colección sea 'usuario' (singular)
     final doc = await _db.collection('usuario').doc(uid).get();
 
     if (!doc.exists) {
@@ -39,8 +40,10 @@ class AuthService {
     }
 
     final data = doc.data()!;
-    final rolString = (data['rol'] as String? ?? '').toLowerCase();
-    final nombre = data['nombre'] as String? ?? 'Usuario';
+    
+    // CAMBIO AQUÍ: Usamos los nombres de tu captura de pantalla
+    final rolString = (data['rol_usuario'] as String? ?? '').toLowerCase();
+    final nombre = data['nombre_usuario'] as String? ?? 'Usuario';
 
     return SesionUsuario(
       uid: uid,
