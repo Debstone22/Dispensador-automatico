@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'menu_inferior.dart';
+import 'datos_medicamentos.dart'; // IMPORTANTE: Importar la lista global
 
 class PantallaGestionNombres extends StatefulWidget {
   const PantallaGestionNombres({super.key});
@@ -9,21 +10,11 @@ class PantallaGestionNombres extends StatefulWidget {
 }
 
 class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
-  // Lista inicial de medicamentos (Simulando una base de datos)
-  final List<String> _nombresPastillas = [
-    'Paracetamol',
-    'Naproxeno',
-    'Ibuprofeno',
-    'Deflazacort',
-    'Diclofenaco',
-  ];
-
   final TextEditingController _controller = TextEditingController();
 
-  // Función para mostrar el diálogo de Agregar/Editar
   void _mostrarDialogo({int? index}) {
     if (index != null) {
-      _controller.text = _nombresPastillas[index];
+      _controller.text = nombresPastillasGlobal[index];
     } else {
       _controller.clear();
     }
@@ -37,17 +28,22 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
           decoration: const InputDecoration(hintText: "Ej. Amoxicilina"),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancelar"),
+          ),
           ElevatedButton(
             onPressed: () {
-              setState(() {
-                if (index == null) {
-                  _nombresPastillas.add(_controller.text);
-                } else {
-                  _nombresPastillas[index] = _controller.text;
-                }
-              });
-              Navigator.pop(context);
+              if (_controller.text.isNotEmpty) {
+                setState(() {
+                  if (index == null) {
+                    nombresPastillasGlobal.add(_controller.text);
+                  } else {
+                    nombresPastillasGlobal[index] = _controller.text;
+                  }
+                });
+                Navigator.pop(context);
+              }
             },
             child: const Text("Guardar"),
           ),
@@ -61,7 +57,10 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F8E9),
       appBar: AppBar(
-        title: const Text("Gestión de Medicamentos", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Gestión de Medicamentos",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -71,13 +70,18 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
           children: [
             Expanded(
               child: ListView.builder(
-                itemCount: _nombresPastillas.length,
+                itemCount: nombresPastillasGlobal.length,
                 itemBuilder: (context, index) {
                   return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                     margin: const EdgeInsets.only(bottom: 10),
                     child: ListTile(
-                      title: Text(_nombresPastillas[index], style: const TextStyle(fontWeight: FontWeight.w500)),
+                      title: Text(
+                        nombresPastillasGlobal[index],
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -86,9 +90,14 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
                             onPressed: () => _mostrarDialogo(index: index),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.redAccent),
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.redAccent,
+                            ),
                             onPressed: () {
-                              setState(() => _nombresPastillas.removeAt(index));
+                              setState(
+                                () => nombresPastillasGlobal.removeAt(index),
+                              );
                             },
                           ),
                         ],

@@ -1,37 +1,34 @@
 import 'package:flutter/material.dart';
-import 'menu_inferior.dart'; // ¡REUTILIZAMOS EL MENÚ AQUÍ!
+import 'menu_inferior.dart';
+import 'datos_medicamentos.dart'; // IMPORTANTE: Importamos la lista compartida
 
 class PantallaConfiguracionSlots extends StatefulWidget {
   const PantallaConfiguracionSlots({super.key});
 
   @override
-  State<PantallaConfiguracionSlots> createState() => _PantallaConfiguracionSlotsState();
+  State<PantallaConfiguracionSlots> createState() =>
+      _PantallaConfiguracionSlotsState();
 }
 
-class _PantallaConfiguracionSlotsState extends State<PantallaConfiguracionSlots> {
-  // Lista de medicamentos para los ComboBox (Dropdown)
-  final List<String> _medicamentos = [
-    'Seleccionar medicamento',
-    'Paracetamol',
-    'Naproxeno',
-    'Ibuprofeno',
-    'Deflazacort',
-    'Diclofenaco',
-    'Coltaire',
-  ];
+class _PantallaConfiguracionSlotsState
+    extends State<PantallaConfiguracionSlots> {
+  // Mapa para guardar la configuración temporal de cada medicamento
+  // La llave es el nombre del medicamento y el valor es la hora/cantidad configurada
+  final Map<String, Map<String, String>> _configuracionSlots = {};
 
-  // Variables para guardar la selección de cada Slot
-  String _seleccionSlot1 = 'Paracetamol';
-  String _seleccionSlot2 = 'Naproxeno';
-  String _seleccionSlot3 = 'Seleccionar medicamento';
-  String _seleccionSlot4 = 'Seleccionar medicamento';
-  String _seleccionSlot5 = 'Seleccionar medicamento';
-  String _seleccionSlot6 = 'Seleccionar medicamento';
+  @override
+  void initState() {
+    super.initState();
+    // Inicializamos el mapa con datos por defecto para cada medicamento de la lista global
+    for (var medicamento in nombresPastillasGlobal) {
+      _configuracionSlots[medicamento] = {'cantidad': '1', 'hora': '08:00 AM'};
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F8E9), // Fondo verde claro
+      backgroundColor: const Color(0xFFF1F8E9),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -40,169 +37,161 @@ class _PantallaConfiguracionSlotsState extends State<PantallaConfiguracionSlots>
             children: [
               const SizedBox(height: 20),
               // --- HEADER ---
-              const Text("Configura tu MiniDoc", style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 25),
-              const Text("Selecciona el nombre, la cantidad y el horario en que se debe tomar", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text(
+                "Configura tu MiniDoc",
+                style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 15),
+              const Text(
+                "Establece la cantidad y el horario para cada uno de tus medicamentos registrados.",
+                style: TextStyle(fontSize: 15, color: Colors.black54),
+              ),
+              const SizedBox(height: 20),
 
-              // --- LISTA DE SLOTS (Hacemos que esta parte sea scrolleable) ---
+              // --- LISTA DINÁMICA DE SLOTS ---
               Expanded(
-                child: ListView(
-                  children: [
-                    // SLOT 1
-                    _buildSlotCard(
-                      titulo: "Slot 1",
-                      medicamentoSeleccionado: _seleccionSlot1,
-                      cantidad: "7",
-                      hora: "08:00 AM",
-                      onMedicamentoChanged: (nuevoValor) {
-                        setState(() { _seleccionSlot1 = nuevoValor!; });
-                      },
-                    ),
-                    const SizedBox(height: 15),
-                    
-                    // SLOT 2
-                    _buildSlotCard(
-                      titulo: "Slot 2",
-                      medicamentoSeleccionado: _seleccionSlot2,
-                      cantidad: "30",
-                      hora: "12:00 PM",
-                      onMedicamentoChanged: (nuevoValor) {
-                        setState(() { _seleccionSlot2 = nuevoValor!; });
-                      },
-                    ),
-                    const SizedBox(height: 15),
+                child: ListView.builder(
+                  // Crea tantos slots como medicamentos existan en la lista global
+                  itemCount: nombresPastillasGlobal.length,
+                  itemBuilder: (context, index) {
+                    String medicamento = nombresPastillasGlobal[index];
 
-                    // SLOT 3
-                    _buildSlotCard(
-                      titulo: "Slot 3",
-                      medicamentoSeleccionado: _seleccionSlot3,
-                      cantidad: "20",
-                      hora: "08:00 AM",
-                      onMedicamentoChanged: (nuevoValor) {
-                        setState(() { _seleccionSlot3 = nuevoValor!; });
-                      },
-                    ),
-                    // SLOT 4
-                    _buildSlotCard(
-                      titulo: "Slot 4",
-                      medicamentoSeleccionado: _seleccionSlot4,
-                      cantidad: "10",
-                      hora: "07:00 AM",
-                      onMedicamentoChanged: (nuevoValor) {
-                        setState(() { _seleccionSlot4 = nuevoValor!; });
-                      },
-                    ),
-                    // SLOT 5
-                    _buildSlotCard(
-                      titulo: "Slot 5",
-                      medicamentoSeleccionado: _seleccionSlot5,
-                      cantidad: "27",
-                      hora: "10:00 AM",
-                      onMedicamentoChanged: (nuevoValor) {
-                        setState(() { _seleccionSlot5 = nuevoValor!; });
-                      },
-                    ),
-                    // SLOT 6
-                    _buildSlotCard(
-                      titulo: "Slot 6",
-                      medicamentoSeleccionado: _seleccionSlot6,
-                      cantidad: "4",
-                      hora: "09:00 AM",
-                      onMedicamentoChanged: (nuevoValor) {
-                        setState(() { _seleccionSlot6 = nuevoValor!; });
-                      },
-                    ),
-                    
-                    const SizedBox(height: 25),
-
-                    // --- BOTÓN AGREGAR SLOT ---
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.add),
-                      label: const Text("Agregar Slot"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4CAF50),
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: _buildSlotCard(
+                        titulo: "Slot ${index + 1}",
+                        nombreMedicamento: medicamento,
+                        cantidad:
+                            _configuracionSlots[medicamento]?['cantidad'] ??
+                            '1',
+                        hora:
+                            _configuracionSlots[medicamento]?['hora'] ??
+                            '08:00 AM',
                       ),
+                    );
+                  },
+                ),
+              ),
+
+              // --- BOTÓN GUARDAR ---
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Configuración guardada correctamente'),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4CAF50),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 55),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    const SizedBox(height: 20),
-                  ],
+                  ),
+                  child: const Text(
+                    "Guardar Configuración",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
-      // --- ¡AQUÍ ESTÁ LA REUTILIZACIÓN MAGICA! ---
-      // Llamamos a la clase que creaste antes
-      bottomNavigationBar: const MenuInferior(), 
+      bottomNavigationBar: const MenuInferior(),
     );
   }
 
-  // --- WIDGET AUXILIAR PARA CREAR CADA TARJETA DE SLOT (Reusable) ---
+  // --- WIDGET DE TARJETA DE SLOT (Actualizado para ser estático por nombre) ---
   Widget _buildSlotCard({
     required String titulo,
-    required String medicamentoSeleccionado,
+    required String nombreMedicamento,
     required String cantidad,
     required String hora,
-    required ValueChanged<String?> onMedicamentoChanged,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título del Slot
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(titulo, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              const Icon(Icons.keyboard_arrow_down, color: Colors.green),
+              Text(
+                titulo,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                  fontSize: 14,
+                ),
+              ),
+              const Icon(
+                Icons.check_circle_outline,
+                color: Colors.green,
+                size: 20,
+              ),
             ],
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
 
-          // --- COMBO BOX (DropdownButton) ---
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: medicamentoSeleccionado,
-                isExpanded: true, // Ocupa todo el ancho
-                icon: const Icon(Icons.unfold_more, color: Colors.grey),
-                items: _medicamentos.map((String medicamento) {
-                  return DropdownMenuItem<String>(
-                    value: medicamento,
-                    child: Text(medicamento),
-                  );
-                }).toList(),
-                onChanged: onMedicamentoChanged,
-              ),
+          // Nombre del medicamento (ya no es un Dropdown, es el asignado)
+          Text(
+            nombreMedicamento,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
           ),
-          const SizedBox(height: 15),
 
-          // --- FILA DE CANTIDAD Y HORA ---
+          const Divider(height: 30),
+
           Row(
             children: [
-              const Text("Cantidad", style: TextStyle(color: Colors.grey)),
-              const SizedBox(width: 10),
-              // Cuadro de Cantidad
-              _buildInputCuadrado(cantidad),
-              const Spacer(),
-              // Cuadro de Hora
-              _buildInputCuadrado(hora),
+              // Columna Cantidad
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Cantidad",
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                    const SizedBox(height: 5),
+                    _buildInputCuadrado(cantidad, Icons.medication_liquid),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 15),
+              // Columna Hora
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Horario",
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                    const SizedBox(height: 5),
+                    _buildInputCuadrado(hora, Icons.access_time),
+                  ],
+                ),
+              ),
             ],
           ),
         ],
@@ -210,16 +199,23 @@ class _PantallaConfiguracionSlotsState extends State<PantallaConfiguracionSlots>
     );
   }
 
-  // Widget auxiliar para los cuadros grises pequeños (cantidad y hora)
-  Widget _buildInputCuadrado(String texto) {
+  Widget _buildInputCuadrado(String texto, IconData icono) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[200]!),
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(texto, style: const TextStyle(fontWeight: FontWeight.w500)),
+      child: Row(
+        children: [
+          Icon(icono, size: 16, color: Colors.black54),
+          const SizedBox(width: 8),
+          Text(
+            texto,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        ],
+      ),
     );
   }
 }
