@@ -3,7 +3,13 @@ import 'menu_inferior.dart';
 import 'datos_medicamentos.dart'; // IMPORTANTE: Importamos la lista compartida
 
 class PantallaConfiguracionSlots extends StatefulWidget {
-  const PantallaConfiguracionSlots({super.key});
+  final String nombreUsuario; // 👈 Agregamos la variable para el nombre
+  final String sexoUsuario; // 👈 Agregamos la variable para el sexo
+  const PantallaConfiguracionSlots({
+    super.key,
+    required this.nombreUsuario, // 👈 Lo hacemos requerido en el constructor
+    required this.sexoUsuario, // 👈 Lo hacemos requerido en el constructor
+  });
 
   @override
   State<PantallaConfiguracionSlots> createState() =>
@@ -12,14 +18,11 @@ class PantallaConfiguracionSlots extends StatefulWidget {
 
 class _PantallaConfiguracionSlotsState
     extends State<PantallaConfiguracionSlots> {
-  // Mapa para guardar la configuración temporal de cada medicamento
-  // La llave es el nombre del medicamento y el valor es la hora/cantidad configurada
   final Map<String, Map<String, String>> _configuracionSlots = {};
 
   @override
   void initState() {
     super.initState();
-    // Inicializamos el mapa con datos por defecto para cada medicamento de la lista global
     for (var medicamento in nombresPastillasGlobal) {
       _configuracionSlots[medicamento] = {'cantidad': '1', 'hora': '08:00 AM'};
     }
@@ -36,7 +39,6 @@ class _PantallaConfiguracionSlotsState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              // --- HEADER ---
               const Text(
                 "Configura tu MiniDoc",
                 style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
@@ -47,11 +49,8 @@ class _PantallaConfiguracionSlotsState
                 style: TextStyle(fontSize: 15, color: Colors.black54),
               ),
               const SizedBox(height: 20),
-
-              // --- LISTA DINÁMICA DE SLOTS ---
               Expanded(
                 child: ListView.builder(
-                  // Crea tantos slots como medicamentos existan en la lista global
                   itemCount: nombresPastillasGlobal.length,
                   itemBuilder: (context, index) {
                     String medicamento = nombresPastillasGlobal[index];
@@ -61,19 +60,16 @@ class _PantallaConfiguracionSlotsState
                       child: _buildSlotCard(
                         titulo: "Slot ${index + 1}",
                         nombreMedicamento: medicamento,
-                        cantidad:
-                            _configuracionSlots[medicamento]?['cantidad'] ??
+                        cantidad: _configuracionSlots[medicamento]
+                                ?['cantidad'] ??
                             '1',
-                        hora:
-                            _configuracionSlots[medicamento]?['hora'] ??
+                        hora: _configuracionSlots[medicamento]?['hora'] ??
                             '08:00 AM',
                       ),
                     );
                   },
                 ),
               ),
-
-              // --- BOTÓN GUARDAR ---
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15.0),
                 child: ElevatedButton(
@@ -102,11 +98,16 @@ class _PantallaConfiguracionSlotsState
           ),
         ),
       ),
-      bottomNavigationBar: const MenuInferior(),
+      // 👈 Quitamos el const y pasamos el nombre del widget al menú
+      bottomNavigationBar: MenuInferior(
+        nombreUsuario: widget.nombreUsuario,
+        sexoUsuario: widget.sexoUsuario,
+        correoUsuario: '',
+        rolUsuario: '',
+      ),
     );
   }
 
-  // --- WIDGET DE TARJETA DE SLOT (Actualizado para ser estático por nombre) ---
   Widget _buildSlotCard({
     required String titulo,
     required String nombreMedicamento,
@@ -148,8 +149,6 @@ class _PantallaConfiguracionSlotsState
             ],
           ),
           const SizedBox(height: 10),
-
-          // Nombre del medicamento (ya no es un Dropdown, es el asignado)
           Text(
             nombreMedicamento,
             style: const TextStyle(
@@ -158,12 +157,9 @@ class _PantallaConfiguracionSlotsState
               color: Colors.black87,
             ),
           ),
-
           const Divider(height: 30),
-
           Row(
             children: [
-              // Columna Cantidad
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,7 +174,6 @@ class _PantallaConfiguracionSlotsState
                 ),
               ),
               const SizedBox(width: 15),
-              // Columna Hora
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'registro.dart'; // Importante para que reconozca la otra pantalla
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'registro.dart';
+import 'pantalla_principal.dart';
 
 class BannerAnimado extends StatefulWidget {
   const BannerAnimado({super.key});
@@ -112,6 +114,74 @@ class _PantallaLoginState extends State<PantallaLogin> {
   bool _isObscure = true;
   bool _isLoading = false;
 
+  Future<void> _iniciarSesion() async {
+    String inputUsuario = _usuarioController.text.trim();
+    String inputPassword = _passController.text.trim();
+
+    if (inputUsuario.isEmpty || inputPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, llena todos los campos')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final QuerySnapshot resultado = await FirebaseFirestore.instance
+          .collection('usuario')
+          .where('correo_usuario', isEqualTo: inputUsuario)
+          .get();
+
+      if (resultado.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El usuario o correo no existe')),
+        );
+      } else {
+        final datosUsuario =
+            resultado.docs.first.data() as Map<String, dynamic>;
+        String passwordCorrecta = datosUsuario['contraseña_usuario'] ?? '';
+
+        if (passwordCorrecta == inputPassword) {
+          String nombreReal = datosUsuario['nombre_usuario'] ?? 'Usuario';
+          String sexoReal = datosUsuario['sexo_usuario'] ?? 'H';
+
+          // Extraemos los campos reales de Firebase
+          String correoReal = datosUsuario['correo_usuario'] ?? inputUsuario;
+          String rolReal = datosUsuario['rol_usuario'] ?? 'Paciente';
+
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PantallaPrincipal(
+                  nombreUsuario: nombreReal,
+                  sexoUsuario: sexoReal,
+                  correoUsuario: correoReal, // 👈 Enviado
+                  rolUsuario: rolReal, // 👈 Enviado
+                ),
+              ),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Contraseña incorrecta')),
+          );
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al conectar: $e')),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,17 +249,15 @@ class _PantallaLoginState extends State<PantallaLogin> {
                   ),
                   const SizedBox(height: 30),
                   ElevatedButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () async {
-                            /* Lógica de login */
-                          },
+                    onPressed: _isLoading ? null : _iniciarSesion,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CAF50),
                       foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 55),
                     ),
-                    child: const Text("Iniciar Sesión"),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text("Iniciar Sesión"),
                   ),
                   const SizedBox(height: 20),
                   TextButton(

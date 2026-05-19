@@ -2,10 +2,21 @@ import 'package:flutter/material.dart';
 import 'menu_inferior.dart';
 import 'configuracion_slots.dart';
 import 'datos_medicamentos.dart';
-import 'encabezado_usuario.dart'; // 1. IMPORTA EL NUEVO COMPONENTE
+import 'encabezado_usuario.dart';
 
 class PantallaPrincipal extends StatefulWidget {
-  const PantallaPrincipal({super.key});
+  final String nombreUsuario;
+  final String sexoUsuario;
+  final String correoUsuario;
+  final String rolUsuario;
+
+  const PantallaPrincipal({
+    super.key,
+    required this.nombreUsuario,
+    required this.sexoUsuario,
+    required this.correoUsuario,
+    required this.rolUsuario,
+  });
 
   @override
   State<PantallaPrincipal> createState() => _PantallaPrincipalState();
@@ -41,28 +52,25 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-
-              // 2. REEMPLAZO DEL HEADER POR EL COMPONENTE
-              const EncabezadoUsuario(nombre: "María"),
-
+              EncabezadoUsuario(
+                nombre: widget.nombreUsuario,
+                sexo: widget.sexoUsuario,
+                correo: widget.correoUsuario,
+                rol: widget.rolUsuario,
+              ),
               const SizedBox(height: 30),
-
-              // Tarjeta de Alerta Animada
               ScaleTransition(
                 scale: Tween(begin: 1.0, end: 1.05).animate(
                   CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
                 ),
                 child: _construirTarjetaAlerta(),
               ),
-
               const SizedBox(height: 30),
-
               const Text(
                 "Capacidad de tus pastillas",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 15),
-
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -90,8 +98,10 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  const PantallaConfiguracionSlots(),
+                              builder: (context) => PantallaConfiguracionSlots(
+                                nombreUsuario: widget.nombreUsuario,
+                                sexoUsuario: '',
+                              ),
                             ),
                           ).then((_) => setState(() {}));
                         },
@@ -114,18 +124,22 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
           ),
         ),
       ),
-      bottomNavigationBar: const MenuInferior(),
+      bottomNavigationBar: MenuInferior(
+        nombreUsuario: widget.nombreUsuario,
+        sexoUsuario: widget.sexoUsuario,
+        correoUsuario: widget.correoUsuario,
+        rolUsuario: widget.rolUsuario,
+      ),
     );
   }
 
-  // ... (tus otros métodos _obtenerColor, _construirTarjetaAlerta y _buildProgressBar quedan igual)
   Color _obtenerColor(int index) {
     List<Color> colores = [
       Colors.amber,
       Colors.green,
       Colors.orange,
       Colors.redAccent,
-      Colors.blue,
+      Colors.blue
     ];
     return colores[index % colores.length];
   }
@@ -137,7 +151,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
         color: const Color(0xFFFFF9C4),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.orange.withOpacity(0.1), blurRadius: 10),
+          BoxShadow(color: Colors.orange.withOpacity(0.1), blurRadius: 10)
         ],
       ),
       child: const Row(
@@ -148,9 +162,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
             child: Text(
               "Tienes medicamentos por agotarse",
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF856404),
-              ),
+                  fontWeight: FontWeight.bold, color: Color(0xFF856404)),
             ),
           ),
         ],
@@ -165,10 +177,9 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
         children: [
           SizedBox(
             width: 90,
-            child: Text(
-              nombre,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-            ),
+            child: Text(nombre,
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
           ),
           Expanded(
             child: ClipRRect(

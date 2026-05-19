@@ -24,8 +24,10 @@ class _DashboardMonitorState extends State<DashboardMonitor> {
   Future<void> _cerrarSesion() async {
     await _auth.cerrarSesion();
     if (mounted) {
-      Navigator.pushAndRemoveUntil(context,
-          MaterialPageRoute(builder: (_) => const PantallaLogin()), (_) => false);
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const PantallaLogin()),
+          (_) => false);
     }
   }
 
@@ -43,7 +45,8 @@ class _DashboardMonitorState extends State<DashboardMonitor> {
               height: 32,
               decoration: BoxDecoration(
                   color: _azul, borderRadius: BorderRadius.circular(8)),
-              child: const Icon(Icons.medication, color: Colors.white, size: 18),
+              child:
+                  const Icon(Icons.medication, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 10),
             const Text('MedDispenser',
@@ -62,7 +65,9 @@ class _DashboardMonitorState extends State<DashboardMonitor> {
                 SizedBox(width: 4),
                 Text('Monitor',
                     style: TextStyle(
-                        color: _azul, fontSize: 12, fontWeight: FontWeight.w600)),
+                        color: _azul,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -123,11 +128,46 @@ class _TabPacientesState extends State<_TabPacientes> {
   String _busqueda = '';
 
   final List<Map<String, dynamic>> _pacientes = const [
-    {'nombre': 'Luis Pérez Ríos',  'edad': 72, 'dx': 'Diabetes tipo 2', 'adherencia': 94, 'estado': 'activo',  'dispositivo': '#07'},
-    {'nombre': 'Carlos Medina',    'edad': 68, 'dx': 'Hipertensión arterial', 'adherencia': 71, 'estado': 'alerta', 'dispositivo': '#12'},
-    {'nombre': 'Rosa Torres Vega', 'edad': 80, 'dx': 'HTA + diabetes', 'adherencia': 43, 'estado': 'critico', 'dispositivo': '#03'},
-    {'nombre': 'María Gutiérrez',  'edad': 75, 'dx': 'Fibrilación auricular', 'adherencia': 88, 'estado': 'activo', 'dispositivo': '#19'},
-    {'nombre': 'Jorge Castillo',   'edad': 70, 'dx': 'Osteoporosis', 'adherencia': null, 'estado': 'sin dispositivo', 'dispositivo': null},
+    {
+      'nombre': 'Luis Pérez Ríos',
+      'edad': 72,
+      'dx': 'Diabetes tipo 2',
+      'adherencia': 94,
+      'estado': 'activo',
+      'dispositivo': '#07'
+    },
+    {
+      'nombre': 'Carlos Medina',
+      'edad': 68,
+      'dx': 'Hipertensión arterial',
+      'adherencia': 71,
+      'estado': 'alerta',
+      'dispositivo': '#12'
+    },
+    {
+      'nombre': 'Rosa Torres Vega',
+      'edad': 80,
+      'dx': 'HTA + diabetes',
+      'adherencia': 43,
+      'estado': 'critico',
+      'dispositivo': '#03'
+    },
+    {
+      'nombre': 'María Gutiérrez',
+      'edad': 75,
+      'dx': 'Fibrilación auricular',
+      'adherencia': 88,
+      'estado': 'activo',
+      'dispositivo': '#19'
+    },
+    {
+      'nombre': 'Jorge Castillo',
+      'edad': 70,
+      'dx': 'Osteoporosis',
+      'adherencia': null,
+      'estado': 'sin dispositivo',
+      'dispositivo': null
+    },
   ];
 
   List<Map<String, dynamic>> get _filtrados {
@@ -144,10 +184,10 @@ class _TabPacientesState extends State<_TabPacientes> {
   }
 
   Color _colorEstado(String estado) => switch (estado) {
-        'activo'          => const Color(0xFF2D7A4F),
-        'alerta'          => const Color(0xFFBA7517),
-        'critico'         => const Color(0xFFA32D2D),
-        _                 => Colors.grey,
+        'activo' => const Color(0xFF2D7A4F),
+        'alerta' => const Color(0xFFBA7517),
+        'critico' => const Color(0xFFA32D2D),
+        _ => Colors.grey,
       };
 
   @override
@@ -162,7 +202,8 @@ class _TabPacientesState extends State<_TabPacientes> {
             decoration: InputDecoration(
               hintText: 'Buscar por nombre o diagnóstico…',
               prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               filled: true,
               fillColor: Colors.white,
             ),
@@ -179,9 +220,11 @@ class _TabPacientesState extends State<_TabPacientes> {
                 .map((estado) => Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: ChoiceChip(
-                        label: Text(estado[0].toUpperCase() + estado.substring(1)),
+                        label:
+                            Text(estado[0].toUpperCase() + estado.substring(1)),
                         selected: _filtroEstado == estado,
-                        onSelected: (_) => setState(() => _filtroEstado = estado),
+                        onSelected: (_) =>
+                            setState(() => _filtroEstado = estado),
                         selectedColor: const Color(0xFFE6F1FB),
                         labelStyle: TextStyle(
                           color: _filtroEstado == estado
@@ -212,19 +255,22 @@ class _TabPacientesState extends State<_TabPacientes> {
               return Card(
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   leading: CircleAvatar(
                     backgroundColor: color.withOpacity(0.12),
                     child: Text(
                       (p['nombre'] as String).substring(0, 2).toUpperCase(),
-                      style: TextStyle(color: color, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(color: color, fontWeight: FontWeight.bold),
                     ),
                   ),
                   title: Row(
                     children: [
                       Expanded(child: Text(p['nombre'])),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: color.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
@@ -232,7 +278,9 @@ class _TabPacientesState extends State<_TabPacientes> {
                         child: Text(
                           estado[0].toUpperCase() + estado.substring(1),
                           style: TextStyle(
-                              color: color, fontSize: 11, fontWeight: FontWeight.w600),
+                              color: color,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
@@ -283,16 +331,18 @@ class _TabPacientesState extends State<_TabPacientes> {
 class _TabConsumo extends StatelessWidget {
   final List<Map<String, dynamic>> _pastillas = const [
     {'nombre': 'Metformina', 'dosis': 312},
-    {'nombre': 'Enalapril',  'dosis': 287},
-    {'nombre': 'Losartán',   'dosis': 245},
+    {'nombre': 'Enalapril', 'dosis': 287},
+    {'nombre': 'Losartán', 'dosis': 245},
     {'nombre': 'Atorvastatina', 'dosis': 198},
     {'nombre': 'Amlodipino', 'dosis': 176},
-    {'nombre': 'Aspirina',   'dosis': 142},
+    {'nombre': 'Aspirina', 'dosis': 142},
   ];
 
   @override
   Widget build(BuildContext context) {
-    final maxDosis = _pastillas.map((p) => p['dosis'] as int).reduce((a, b) => a > b ? a : b);
+    final maxDosis = _pastillas
+        .map((p) => p['dosis'] as int)
+        .reduce((a, b) => a > b ? a : b);
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -357,9 +407,24 @@ class _TabConsumo extends StatelessWidget {
         const Text('Alertas de stock',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        _StockAlerta(paciente: 'Rosa T.',  slot: 'Slot 1', pct: 0,  color: const Color(0xFFA32D2D), bg: const Color(0xFFFCEBEB)),
-        _StockAlerta(paciente: 'Luis P.',  slot: 'Slot 2', pct: 8,  color: const Color(0xFFA32D2D), bg: const Color(0xFFFCEBEB)),
-        _StockAlerta(paciente: 'Carlos M.',slot: 'Slot 3', pct: 22, color: const Color(0xFFBA7517), bg: const Color(0xFFFAEEDA)),
+        const _StockAlerta(
+            paciente: 'Rosa T.',
+            slot: 'Slot 1',
+            pct: 0,
+            color: Color(0xFFA32D2D),
+            bg: Color(0xFFFCEBEB)),
+        const _StockAlerta(
+            paciente: 'Luis P.',
+            slot: 'Slot 2',
+            pct: 8,
+            color: Color(0xFFA32D2D),
+            bg: Color(0xFFFCEBEB)),
+        const _StockAlerta(
+            paciente: 'Carlos M.',
+            slot: 'Slot 3',
+            pct: 22,
+            color: Color(0xFFBA7517),
+            bg: Color(0xFFFAEEDA)),
       ],
     );
   }
@@ -371,7 +436,12 @@ class _StockAlerta extends StatelessWidget {
   final int pct;
   final Color color;
   final Color bg;
-  const _StockAlerta({required this.paciente, required this.slot, required this.pct, required this.color, required this.bg});
+  const _StockAlerta(
+      {required this.paciente,
+      required this.slot,
+      required this.pct,
+      required this.color,
+      required this.bg});
 
   @override
   Widget build(BuildContext context) {
@@ -390,7 +460,8 @@ class _StockAlerta extends StatelessWidget {
           Text('$paciente — $slot', style: TextStyle(color: color)),
           const Spacer(),
           Text('$pct%',
-              style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16)),
+              style: TextStyle(
+                  color: color, fontWeight: FontWeight.bold, fontSize: 16)),
         ],
       ),
     );

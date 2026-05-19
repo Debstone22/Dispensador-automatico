@@ -3,7 +3,14 @@ import 'menu_inferior.dart';
 import 'datos_medicamentos.dart'; // IMPORTANTE: Importar la lista global
 
 class PantallaGestionNombres extends StatefulWidget {
-  const PantallaGestionNombres({super.key});
+  final String nombreUsuario; // 👈 Agregamos la variable para el nombre
+  final String sexoUsuario; // 👈 Agregamos la variable para el sexo
+
+  const PantallaGestionNombres({
+    super.key,
+    required this.nombreUsuario, // 👈 Lo hacemos requerido en el constructor
+    required this.sexoUsuario, // 👈 Lo hacemos requerido en el constructor
+  });
 
   @override
   State<PantallaGestionNombres> createState() => _PantallaGestionNombresState();
@@ -115,7 +122,13 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
         onPressed: () => _mostrarDialogo(),
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      bottomNavigationBar: const MenuInferior(),
+      // 👈 Quitamos el const y pasamos el nombre del widget al menú
+      bottomNavigationBar: MenuInferior(
+        nombreUsuario: widget.nombreUsuario,
+        sexoUsuario: widget.sexoUsuario,
+        correoUsuario: '',
+        rolUsuario: '',
+      ),
     );
   }
 }

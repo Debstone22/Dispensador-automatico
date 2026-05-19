@@ -49,7 +49,8 @@ class _DashboardAdminState extends State<DashboardAdmin> {
                 color: _verde,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.medication, color: Colors.white, size: 18),
+              child:
+                  const Icon(Icons.medication, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 10),
             const Text('MedDispenser',
@@ -64,12 +65,15 @@ class _DashboardAdminState extends State<DashboardAdmin> {
               color: _verdeLight,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(Icons.shield_outlined, color: _verde, size: 14),
-                const SizedBox(width: 4),
-                const Text('Administrador',
-                    style: TextStyle(color: _verde, fontSize: 12, fontWeight: FontWeight.w600)),
+                Icon(Icons.shield_outlined, color: _verde, size: 14),
+                SizedBox(width: 4),
+                Text('Administrador',
+                    style: TextStyle(
+                        color: _verde,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -83,7 +87,8 @@ class _DashboardAdminState extends State<DashboardAdmin> {
                 widget.sesion.nombre.isNotEmpty
                     ? widget.sesion.nombre[0].toUpperCase()
                     : 'A',
-                style: const TextStyle(color: _verde, fontWeight: FontWeight.bold, fontSize: 13),
+                style: const TextStyle(
+                    color: _verde, fontWeight: FontWeight.bold, fontSize: 13),
               ),
             ),
           ),
@@ -160,10 +165,26 @@ class _TabResumen extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: const [
-            _MetricCard(label: 'Pacientes', value: '48', icon: Icons.person, color: Color(0xFF185FA5)),
-            _MetricCard(label: 'Dispositivos activos', value: '31 / 35', icon: Icons.device_hub, color: Color(0xFF2D7A4F)),
-            _MetricCard(label: 'Dosis dispensadas hoy', value: '127', icon: Icons.medication_liquid, color: Color(0xFFBA7517)),
-            _MetricCard(label: 'Alertas pendientes', value: '4', icon: Icons.warning_amber, color: Color(0xFFA32D2D)),
+            _MetricCard(
+                label: 'Pacientes',
+                value: '48',
+                icon: Icons.person,
+                color: Color(0xFF185FA5)),
+            _MetricCard(
+                label: 'Dispositivos activos',
+                value: '31 / 35',
+                icon: Icons.device_hub,
+                color: Color(0xFF2D7A4F)),
+            _MetricCard(
+                label: 'Dosis dispensadas hoy',
+                value: '127',
+                icon: Icons.medication_liquid,
+                color: Color(0xFFBA7517)),
+            _MetricCard(
+                label: 'Alertas pendientes',
+                value: '4',
+                icon: Icons.warning_amber,
+                color: Color(0xFFA32D2D)),
           ],
         ),
 
@@ -172,22 +193,22 @@ class _TabResumen extends StatelessWidget {
         // ── Alertas activas ────────────────────────────────────────────────
         const _SeccionTitulo('Alertas activas'),
         const SizedBox(height: 8),
-        _AlertaItem(
+        const _AlertaItem(
           tipo: 'critico',
           texto: 'Slot 2 de Luis P. — stock bajo (8%)',
           icono: Icons.medication_outlined,
         ),
-        _AlertaItem(
+        const _AlertaItem(
           tipo: 'advertencia',
           texto: 'Carlos M. no confirmó presencia (08:00)',
           icono: Icons.notifications_off_outlined,
         ),
-        _AlertaItem(
+        const _AlertaItem(
           tipo: 'advertencia',
           texto: 'Dispositivo #14 sin conexión a internet',
           icono: Icons.wifi_off_outlined,
         ),
-        _AlertaItem(
+        const _AlertaItem(
           tipo: 'critico',
           texto: 'Slot 1 de Rosa T. — compartimento vacío',
           icono: Icons.error_outline,
@@ -200,11 +221,36 @@ class _TabResumen extends StatelessWidget {
 // ─── TAB 1: USUARIOS ──────────────────────────────────────────────────────────
 class _TabUsuarios extends StatelessWidget {
   final List<Map<String, dynamic>> _pacientes = const [
-    {'nombre': 'Luis Pérez Ríos', 'dispositivo': '#07', 'adherencia': 94, 'estado': 'activo'},
-    {'nombre': 'Carlos Medina',   'dispositivo': '#12', 'adherencia': 71, 'estado': 'alerta'},
-    {'nombre': 'Rosa Torres Vega','dispositivo': '#03', 'adherencia': 43, 'estado': 'critico'},
-    {'nombre': 'María Gutiérrez', 'dispositivo': '#19', 'adherencia': 88, 'estado': 'activo'},
-    {'nombre': 'Jorge Castillo',  'dispositivo': null,  'adherencia': null, 'estado': 'sin dispositivo'},
+    {
+      'nombre': 'Luis Pérez Ríos',
+      'dispositivo': '#07',
+      'adherencia': 94,
+      'estado': 'activo'
+    },
+    {
+      'nombre': 'Carlos Medina',
+      'dispositivo': '#12',
+      'adherencia': 71,
+      'estado': 'alerta'
+    },
+    {
+      'nombre': 'Rosa Torres Vega',
+      'dispositivo': '#03',
+      'adherencia': 43,
+      'estado': 'critico'
+    },
+    {
+      'nombre': 'María Gutiérrez',
+      'dispositivo': '#19',
+      'adherencia': 88,
+      'estado': 'activo'
+    },
+    {
+      'nombre': 'Jorge Castillo',
+      'dispositivo': null,
+      'adherencia': null,
+      'estado': 'sin dispositivo'
+    },
   ];
 
   @override
@@ -226,28 +272,28 @@ class _TabDispositivos extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(16),
-      children: [
-        const _SeccionTitulo('Dispositivos y slots'),
-        const SizedBox(height: 12),
+      children: const [
+        _SeccionTitulo('Dispositivos y slots'),
+        SizedBox(height: 12),
         _DispositivoCard(
           id: '#07',
           paciente: 'Luis Pérez',
           conectado: true,
           bateria: 88,
-          slots: const [
+          slots: [
             {'nombre': 'Metformina', 'pct': 62},
             {'nombre': 'Enalapril', 'pct': 8},
             {'nombre': 'Losartán', 'pct': 78},
             {'nombre': 'Aspirina', 'pct': 45},
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         _DispositivoCard(
           id: '#12',
           paciente: 'Carlos Medina',
           conectado: true,
           bateria: 55,
-          slots: const [
+          slots: [
             {'nombre': 'Enalapril', 'pct': 55},
             {'nombre': 'Amlodipino', 'pct': 22},
             {'nombre': 'Atorvastatina', 'pct': 3},
@@ -267,11 +313,41 @@ class _TabHorarios extends StatefulWidget {
 
 class _TabHorariosState extends State<_TabHorarios> {
   final List<Map<String, dynamic>> _horarios = [
-    {'hora': '07:00', 'medicamento': 'Metformina 850mg', 'slot': 'Slot 1', 'paciente': 'Luis Pérez', 'activo': true},
-    {'hora': '08:00', 'medicamento': 'Enalapril 10mg', 'slot': 'Slot 2', 'paciente': 'Carlos Medina', 'activo': true},
-    {'hora': '12:00', 'medicamento': 'Atorvastatina 20mg', 'slot': 'Slot 3', 'paciente': 'Rosa Torres', 'activo': false},
-    {'hora': '14:00', 'medicamento': 'Metformina 850mg', 'slot': 'Slot 1', 'paciente': 'Luis Pérez', 'activo': true},
-    {'hora': '20:00', 'medicamento': 'Losartán 50mg', 'slot': 'Slot 4', 'paciente': 'María Gutiérrez', 'activo': true},
+    {
+      'hora': '07:00',
+      'medicamento': 'Metformina 850mg',
+      'slot': 'Slot 1',
+      'paciente': 'Luis Pérez',
+      'activo': true
+    },
+    {
+      'hora': '08:00',
+      'medicamento': 'Enalapril 10mg',
+      'slot': 'Slot 2',
+      'paciente': 'Carlos Medina',
+      'activo': true
+    },
+    {
+      'hora': '12:00',
+      'medicamento': 'Atorvastatina 20mg',
+      'slot': 'Slot 3',
+      'paciente': 'Rosa Torres',
+      'activo': false
+    },
+    {
+      'hora': '14:00',
+      'medicamento': 'Metformina 850mg',
+      'slot': 'Slot 1',
+      'paciente': 'Luis Pérez',
+      'activo': true
+    },
+    {
+      'hora': '20:00',
+      'medicamento': 'Losartán 50mg',
+      'slot': 'Slot 4',
+      'paciente': 'María Gutiérrez',
+      'activo': true
+    },
   ];
 
   @override
@@ -297,7 +373,8 @@ class _TabHorariosState extends State<_TabHorarios> {
               trailing: Switch(
                 value: h['activo'],
                 activeColor: const Color(0xFF2D7A4F),
-                onChanged: (val) => setState(() => _horarios[e.key]['activo'] = val),
+                onChanged: (val) =>
+                    setState(() => _horarios[e.key]['activo'] = val),
               ),
             ),
           );
@@ -324,7 +401,11 @@ class _MetricCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color color;
-  const _MetricCard({required this.label, required this.value, required this.icon, required this.color});
+  const _MetricCard(
+      {required this.label,
+      required this.value,
+      required this.icon,
+      required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -340,8 +421,11 @@ class _MetricCard extends StatelessWidget {
         children: [
           Icon(icon, color: color, size: 22),
           const Spacer(),
-          Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color)),
-          Text(label, style: TextStyle(fontSize: 11, color: color.withOpacity(0.8))),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 20, fontWeight: FontWeight.bold, color: color)),
+          Text(label,
+              style: TextStyle(fontSize: 11, color: color.withOpacity(0.8))),
         ],
       ),
     );
@@ -352,7 +436,8 @@ class _AlertaItem extends StatelessWidget {
   final String tipo;
   final String texto;
   final IconData icono;
-  const _AlertaItem({required this.tipo, required this.texto, required this.icono});
+  const _AlertaItem(
+      {required this.tipo, required this.texto, required this.icono});
 
   @override
   Widget build(BuildContext context) {
@@ -371,7 +456,8 @@ class _AlertaItem extends StatelessWidget {
         children: [
           Icon(icono, color: color, size: 18),
           const SizedBox(width: 10),
-          Expanded(child: Text(texto, style: TextStyle(color: color, fontSize: 13))),
+          Expanded(
+              child: Text(texto, style: TextStyle(color: color, fontSize: 13))),
         ],
       ),
     );
@@ -384,10 +470,10 @@ class _PacienteCard extends StatelessWidget {
 
   Color get _color {
     return switch (datos['estado'] as String) {
-      'activo'          => const Color(0xFF2D7A4F),
-      'alerta'          => const Color(0xFFBA7517),
-      'critico'         => const Color(0xFFA32D2D),
-      _                 => Colors.grey,
+      'activo' => const Color(0xFF2D7A4F),
+      'alerta' => const Color(0xFFBA7517),
+      'critico' => const Color(0xFFA32D2D),
+      _ => Colors.grey,
     };
   }
 
@@ -470,7 +556,8 @@ class _DispositivoCard extends StatelessWidget {
                 Text(conectado ? 'Conectado' : 'Offline',
                     style: TextStyle(
                         fontSize: 12,
-                        color: conectado ? const Color(0xFF2D7A4F) : Colors.grey)),
+                        color:
+                            conectado ? const Color(0xFF2D7A4F) : Colors.grey)),
               ],
             ),
             const SizedBox(height: 12),
@@ -484,7 +571,8 @@ class _DispositivoCard extends StatelessWidget {
                     child: Column(
                       children: [
                         Text('Slot ${e.key + 1}',
-                            style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                            style: TextStyle(
+                                fontSize: 11, color: Colors.grey[500])),
                         const SizedBox(height: 4),
                         Container(
                           height: 60,
@@ -510,7 +598,8 @@ class _DispositivoCard extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                                 color: _slotColor(pct))),
                         Text(s['nombre'],
-                            style: TextStyle(fontSize: 9, color: Colors.grey[500]),
+                            style:
+                                TextStyle(fontSize: 9, color: Colors.grey[500]),
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center),
                       ],

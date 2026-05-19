@@ -25,8 +25,10 @@ class _DashboardCallCenterState extends State<DashboardCallCenter> {
   Future<void> _cerrarSesion() async {
     await _auth.cerrarSesion();
     if (mounted) {
-      Navigator.pushAndRemoveUntil(context,
-          MaterialPageRoute(builder: (_) => const PantallaLogin()), (_) => false);
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const PantallaLogin()),
+          (_) => false);
     }
   }
 
@@ -53,7 +55,8 @@ class _DashboardCallCenterState extends State<DashboardCallCenter> {
               height: 32,
               decoration: BoxDecoration(
                   color: _ambar, borderRadius: BorderRadius.circular(8)),
-              child: const Icon(Icons.medication, color: Colors.white, size: 18),
+              child:
+                  const Icon(Icons.medication, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 10),
             const Text('MedDispenser',
@@ -72,7 +75,9 @@ class _DashboardCallCenterState extends State<DashboardCallCenter> {
                 SizedBox(width: 4),
                 Text('Call Center',
                     style: TextStyle(
-                        color: _ambar, fontSize: 12, fontWeight: FontWeight.w600)),
+                        color: _ambar,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -130,30 +135,72 @@ class _TabLlamadas extends StatelessWidget {
   const _TabLlamadas({required this.onLlamar});
 
   static const _pacientes = [
-    {'nombre': 'Rosa Torres Vega',  'iniciales': 'RT', 'dx': 'HTA + diabetes', 'dispositivo': '#03', 'prioridad': 'alta',   'motivo': 'Slot vacío — sin medicamento'},
-    {'nombre': 'Carlos Medina',     'iniciales': 'CM', 'dx': 'Hipertensión', 'dispositivo': '#12', 'prioridad': 'alta',   'motivo': 'No confirmó presencia (08:00)'},
-    {'nombre': 'Jorge Castillo',    'iniciales': 'JC', 'dx': 'Osteoporosis', 'dispositivo': '#14', 'prioridad': 'alta',   'motivo': 'Dispositivo sin conexión'},
-    {'nombre': 'Luis Pérez Ríos',   'iniciales': 'LP', 'dx': 'Diabetes tipo 2', 'dispositivo': '#07', 'prioridad': 'media',  'motivo': 'Stock bajo en Slot 2 (8%)'},
-    {'nombre': 'María Gutiérrez',   'iniciales': 'MG', 'dx': 'Fibrilación auricular', 'dispositivo': '#19', 'prioridad': 'media',  'motivo': 'Consulta de seguimiento'},
-    {'nombre': 'Ana Soria',         'iniciales': 'AS', 'dx': 'Parkinson', 'dispositivo': '#22', 'prioridad': 'normal', 'motivo': 'Control mensual programado'},
+    {
+      'nombre': 'Rosa Torres Vega',
+      'iniciales': 'RT',
+      'dx': 'HTA + diabetes',
+      'dispositivo': '#03',
+      'prioridad': 'alta',
+      'motivo': 'Slot vacío — sin medicamento'
+    },
+    {
+      'nombre': 'Carlos Medina',
+      'iniciales': 'CM',
+      'dx': 'Hipertensión',
+      'dispositivo': '#12',
+      'prioridad': 'alta',
+      'motivo': 'No confirmó presencia (08:00)'
+    },
+    {
+      'nombre': 'Jorge Castillo',
+      'iniciales': 'JC',
+      'dx': 'Osteoporosis',
+      'dispositivo': '#14',
+      'prioridad': 'alta',
+      'motivo': 'Dispositivo sin conexión'
+    },
+    {
+      'nombre': 'Luis Pérez Ríos',
+      'iniciales': 'LP',
+      'dx': 'Diabetes tipo 2',
+      'dispositivo': '#07',
+      'prioridad': 'media',
+      'motivo': 'Stock bajo en Slot 2 (8%)'
+    },
+    {
+      'nombre': 'María Gutiérrez',
+      'iniciales': 'MG',
+      'dx': 'Fibrilación auricular',
+      'dispositivo': '#19',
+      'prioridad': 'media',
+      'motivo': 'Consulta de seguimiento'
+    },
+    {
+      'nombre': 'Ana Soria',
+      'iniciales': 'AS',
+      'dx': 'Parkinson',
+      'dispositivo': '#22',
+      'prioridad': 'normal',
+      'motivo': 'Control mensual programado'
+    },
   ];
 
   Color _colorPrioridad(String p) => switch (p) {
-        'alta'   => const Color(0xFFA32D2D),
-        'media'  => const Color(0xFFBA7517),
-        _        => const Color(0xFF2D7A4F),
+        'alta' => const Color(0xFFA32D2D),
+        'media' => const Color(0xFFBA7517),
+        _ => const Color(0xFF2D7A4F),
       };
 
   Color _bgPrioridad(String p) => switch (p) {
-        'alta'   => const Color(0xFFFCEBEB),
-        'media'  => const Color(0xFFFAEEDA),
-        _        => const Color(0xFFE8F5EE),
+        'alta' => const Color(0xFFFCEBEB),
+        'media' => const Color(0xFFFAEEDA),
+        _ => const Color(0xFFE8F5EE),
       };
 
   String _labelPrioridad(String p) => switch (p) {
-        'alta'  => '⬆ Alta',
+        'alta' => '⬆ Alta',
         'media' => '→ Media',
-        _       => '✓ Normal',
+        _ => '✓ Normal',
       };
 
   @override
@@ -161,15 +208,27 @@ class _TabLlamadas extends StatelessWidget {
     return Column(
       children: [
         // ── Métricas rápidas ──────────────────────────────────────────────
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Row(
             children: [
-              _MiniMetric(label: 'Prioridad alta', value: '3', color: const Color(0xFFA32D2D), bg: const Color(0xFFFCEBEB)),
-              const SizedBox(width: 10),
-              _MiniMetric(label: 'Prioridad media', value: '2', color: const Color(0xFFBA7517), bg: const Color(0xFFFAEEDA)),
-              const SizedBox(width: 10),
-              _MiniMetric(label: 'Llamadas hoy', value: '12', color: const Color(0xFF2D7A4F), bg: const Color(0xFFE8F5EE)),
+              _MiniMetric(
+                  label: 'Prioridad alta',
+                  value: '3',
+                  color: Color(0xFFA32D2D),
+                  bg: Color(0xFFFCEBEB)),
+              SizedBox(width: 10),
+              _MiniMetric(
+                  label: 'Prioridad media',
+                  value: '2',
+                  color: Color(0xFFBA7517),
+                  bg: Color(0xFFFAEEDA)),
+              SizedBox(width: 10),
+              _MiniMetric(
+                  label: 'Llamadas hoy',
+                  value: '12',
+                  color: Color(0xFF2D7A4F),
+                  bg: Color(0xFFE8F5EE)),
             ],
           ),
         ),
@@ -211,7 +270,8 @@ class _TabLlamadas extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(p['nombre']!,
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
                             const SizedBox(height: 2),
                             Text('Disp. ${p['dispositivo']} · ${p['dx']}',
                                 style: TextStyle(
@@ -219,7 +279,9 @@ class _TabLlamadas extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(p['motivo']!,
                                 style: TextStyle(
-                                    fontSize: 12, color: color, fontWeight: FontWeight.w500)),
+                                    fontSize: 12,
+                                    color: color,
+                                    fontWeight: FontWeight.w500)),
                           ],
                         ),
                       ),
@@ -228,7 +290,8 @@ class _TabLlamadas extends StatelessWidget {
                       Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
                               color: _bgPrioridad(prioridad),
                               borderRadius: BorderRadius.circular(10),
@@ -243,11 +306,13 @@ class _TabLlamadas extends StatelessWidget {
                           ElevatedButton.icon(
                             onPressed: () => onLlamar(p),
                             icon: const Icon(Icons.phone, size: 14),
-                            label: const Text('Llamar', style: TextStyle(fontSize: 12)),
+                            label: const Text('Llamar',
+                                style: TextStyle(fontSize: 12)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFBA7517),
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                               minimumSize: const Size(0, 32),
@@ -270,17 +335,47 @@ class _TabLlamadas extends StatelessWidget {
 // ─── TAB 1: HISTORIAL ─────────────────────────────────────────────────────────
 class _TabHistorial extends StatelessWidget {
   final _historial = const [
-    {'paciente': 'Carlos Medina',   'hora': '08:45', 'duracion': '4m 12s', 'motivo': 'No confirmó dosis',    'resultado': 'Resuelto'},
-    {'paciente': 'Rosa Torres',     'hora': '09:10', 'duracion': '2m 55s', 'motivo': 'Stock vacío',          'resultado': 'Derivado'},
-    {'paciente': 'Luis Pérez',      'hora': '10:30', 'duracion': '1m 08s', 'motivo': 'Consulta general',     'resultado': 'Resuelto'},
-    {'paciente': 'María Gutiérrez', 'hora': '11:00', 'duracion': '6m 40s', 'motivo': 'Reacción adversa',    'resultado': 'Escalado'},
-    {'paciente': 'Ana Soria',       'hora': '12:15', 'duracion': '3m 22s', 'motivo': 'Control mensual',      'resultado': 'Resuelto'},
+    {
+      'paciente': 'Carlos Medina',
+      'hora': '08:45',
+      'duracion': '4m 12s',
+      'motivo': 'No confirmó dosis',
+      'resultado': 'Resuelto'
+    },
+    {
+      'paciente': 'Rosa Torres',
+      'hora': '09:10',
+      'duracion': '2m 55s',
+      'motivo': 'Stock vacío',
+      'resultado': 'Derivado'
+    },
+    {
+      'paciente': 'Luis Pérez',
+      'hora': '10:30',
+      'duracion': '1m 08s',
+      'motivo': 'Consulta general',
+      'resultado': 'Resuelto'
+    },
+    {
+      'paciente': 'María Gutiérrez',
+      'hora': '11:00',
+      'duracion': '6m 40s',
+      'motivo': 'Reacción adversa',
+      'resultado': 'Escalado'
+    },
+    {
+      'paciente': 'Ana Soria',
+      'hora': '12:15',
+      'duracion': '3m 22s',
+      'motivo': 'Control mensual',
+      'resultado': 'Resuelto'
+    },
   ];
 
   Color _colorResultado(String r) => switch (r) {
         'Resuelto' => const Color(0xFF2D7A4F),
         'Derivado' => const Color(0xFFBA7517),
-        _          => const Color(0xFFA32D2D),
+        _ => const Color(0xFFA32D2D),
       };
 
   @override
@@ -300,13 +395,15 @@ class _TabHistorial extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(h['hora']!,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14)),
                   Text(h['duracion']!,
                       style: TextStyle(color: Colors.grey[500], fontSize: 11)),
                 ],
               ),
               title: Text(h['paciente']!),
-              subtitle: Text(h['motivo']!, style: const TextStyle(fontSize: 12)),
+              subtitle:
+                  Text(h['motivo']!, style: const TextStyle(fontSize: 12)),
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -315,7 +412,9 @@ class _TabHistorial extends StatelessWidget {
                 ),
                 child: Text(h['resultado']!,
                     style: TextStyle(
-                        color: color, fontSize: 12, fontWeight: FontWeight.bold)),
+                        color: color,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold)),
               ),
             ),
           );
@@ -331,14 +430,19 @@ class _MiniMetric extends StatelessWidget {
   final String value;
   final Color color;
   final Color bg;
-  const _MiniMetric({required this.label, required this.value, required this.color, required this.bg});
+  const _MiniMetric(
+      {required this.label,
+      required this.value,
+      required this.color,
+      required this.bg});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+        decoration:
+            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
         child: Column(
           children: [
             Text(value,
@@ -444,13 +548,15 @@ class _PantallaLlamadaState extends State<_PantallaLlamada> {
           const SizedBox(height: 16),
 
           Text(widget.paciente['nombre'] as String,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(
             _llamando ? 'Llamando…' : _timerStr,
             style: TextStyle(
               fontSize: _llamando ? 14 : 22,
-              color: _llamando ? const Color(0xFFBA7517) : const Color(0xFF2D7A4F),
+              color:
+                  _llamando ? const Color(0xFFBA7517) : const Color(0xFF2D7A4F),
               fontWeight: _llamando ? FontWeight.normal : FontWeight.bold,
               fontFamily: _llamando ? null : 'monospace',
             ),
