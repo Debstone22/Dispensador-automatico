@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/login.dart';
-// 1. IMPORTA EL ENCABEZADO AQUÍ
+import 'login.dart';
 import 'encabezado_usuario.dart';
+import 'menu_inferior.dart';
 
 class PanelConexiones extends StatefulWidget {
-  const PanelConexiones({super.key});
+  final String nombreUsuario;
+  final String sexoUsuario;
+  final String correoUsuario;
+  final String rolUsuario;
+
+  const PanelConexiones({
+    super.key,
+    required this.nombreUsuario,
+    required this.sexoUsuario,
+    required this.correoUsuario,
+    required this.rolUsuario,
+  });
 
   @override
   State<PanelConexiones> createState() => _PanelConexionesState();
@@ -29,11 +40,13 @@ class _PanelConexionesState extends State<PanelConexiones> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 2. REEMPLAZO DEL TEXTO POR EL COMPONENTE IMPORTADO
-              const EncabezadoUsuario(nombre: "María"),
-
+              EncabezadoUsuario(
+                nombre: widget.nombreUsuario,
+                sexo: widget.sexoUsuario,
+                correo: widget.correoUsuario,
+                rol: widget.rolUsuario,
+              ),
               const SizedBox(height: 30),
-
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -70,7 +83,6 @@ class _PanelConexionesState extends State<PanelConexiones> {
                       ],
                     ),
                     const SizedBox(height: 30),
-
                     _buildStatusItem(
                       Icons.developer_board,
                       "Arduino Uno",
@@ -101,19 +113,14 @@ class _PanelConexionesState extends State<PanelConexiones> {
                       "Operativo",
                       true,
                     ),
-
                     const Divider(height: 30, color: Colors.black12),
-
                     _buildStatusItem(
                       Icons.history,
                       "Último reporte",
                       "Hace 2 minutos",
                       false,
                     ),
-
                     const SizedBox(height: 25),
-
-                    // BOTÓN VERIFICAR
                     SizedBox(
                       width: double.infinity,
                       height: 55,
@@ -145,10 +152,7 @@ class _PanelConexionesState extends State<PanelConexiones> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 15),
-
-                    // BOTÓN CERRAR SESIÓN
                     SizedBox(
                       width: double.infinity,
                       height: 55,
@@ -191,6 +195,12 @@ class _PanelConexionesState extends State<PanelConexiones> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: MenuInferior(
+        nombreUsuario: widget.nombreUsuario,
+        sexoUsuario: widget.sexoUsuario,
+        correoUsuario: widget.correoUsuario,
+        rolUsuario: widget.rolUsuario,
       ),
     );
   }

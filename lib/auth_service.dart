@@ -1,6 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';      
-import 'package:cloud_firestore/cloud_firestore.dart';  
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Roles definidos en el sistema
 enum RolUsuario { administrador, monitor, callcenter, familiar, desconocido }
@@ -40,7 +39,7 @@ class AuthService {
     }
 
     final data = doc.data()!;
-    
+
     // CAMBIO AQUÍ: Usamos los nombres de tu captura de pantalla
     final rolString = (data['rol_usuario'] as String? ?? '').toLowerCase();
     final nombre = data['nombre_usuario'] as String? ?? 'Usuario';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // 👈 Asegúrate de importar Firestore
 
 class PantallaRegistro extends StatefulWidget {
   const PantallaRegistro({super.key});
@@ -12,12 +13,52 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
   final TextEditingController _correoController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
 
+  // 👈 Variable para almacenar la selección de sexo (null por defecto)
+  String? _sexoSeleccionado;
+
   @override
   void dispose() {
     _nombreController.dispose();
     _correoController.dispose();
     _passController.dispose();
     super.dispose();
+  }
+
+  // 👈 Función para registrar al usuario en Firestore
+  Future<void> _registrarUsuario() async {
+    // Validamos que ningún campo esté vacío
+    if (_nombreController.text.isEmpty ||
+        _correoController.text.isEmpty ||
+        _passController.text.isEmpty ||
+        _sexoSeleccionado == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Por favor, llena todos los campos, incluido el sexo."),
+        ),
+      );
+      return;
+    }
+
+    try {
+      // Agrega el documento a tu colección 'usuario' tal como está en tu consola
+      await FirebaseFirestore.instance.collection('usuario').add({
+        'nombre_usuario': _nombreController.text.trim(),
+        'correo_usuario': _correoController.text.trim(),
+        'contraseña_usuario': _passController.text.trim(),
+        'rol_usuario': 'paciente', // Por defecto según tu captura
+        'sexo_usuario': _sexoSeleccionado, // 👈 Aquí se guarda "H" o "M"
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Usuario registrado con éxito")),
+      );
+
+      Navigator.pop(context); // Regresa al Login tras guardar
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error al registrar: $e")));
+    }
   }
 
   @override
@@ -57,7 +98,7 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
               _crearCampoTexto(
                 icono: Icons.person,
                 texto: "Nombre completo",
-                controller: _nombreController, // Pasamos el controlador
+                controller: _nombreController,
               ),
               const SizedBox(height: 20),
 
@@ -65,7 +106,7 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
               _crearCampoTexto(
                 icono: Icons.email,
                 texto: "Correo electrónico",
-                controller: _correoController, // Pasamos el controlador
+                controller: _correoController,
               ),
               const SizedBox(height: 20),
 
@@ -74,7 +115,40 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
                 icono: Icons.lock,
                 texto: "Contraseña",
                 esClave: true,
-                controller: _passController, // Pasamos el controlador
+                controller: _passController,
+              ),
+              const SizedBox(height: 20),
+
+              // 👈 NUEVO: Selector desplegable para Sexo (H / M)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: DropdownButtonFormField<String>(
+                  value: _sexoSeleccionado,
+                  hint: const Row(
+                    children: [
+                      Icon(Icons.wc, color: Colors.grey),
+                      SizedBox(width: 10),
+                      Text(
+                        "Selecciona tu sexo",
+                        style: TextStyle(color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                  decoration: const InputDecoration(border: InputBorder.none),
+                  items: const [
+                    DropdownMenuItem(value: "H", child: Text("Hombre (H)")),
+                    DropdownMenuItem(value: "M", child: Text("Mujer (M)")),
+                  ],
+                  onChanged: (valor) {
+                    setState(() {
+                      _sexoSeleccionado = valor;
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 40),
 
@@ -83,18 +157,8 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Aquí ya puedes obtener los datos así:
-                    print("Nombre: ${_nombreController.text}");
-                    print("Correo: ${_correoController.text}");
-
-                    // Simulación de registro exitoso
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Registro procesado con éxito"),
-                      ),
-                    );
-                  },
+                  onPressed:
+                      _registrarUsuario, // 👈 Llama a la función de Firebase
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4CAF50),
                     shape: RoundedRectangleBorder(
@@ -118,15 +182,14 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
     );
   }
 
-  // 2. Modificamos el widget auxiliar para que reciba el controlador
   Widget _crearCampoTexto({
     required IconData icono,
     required String texto,
-    required TextEditingController controller, // Ahora es obligatorio
+    required TextEditingController controller,
     bool esClave = false,
   }) {
     return TextField(
-      controller: controller, // Asignamos el controlador al TextField
+      controller: controller,
       obscureText: esClave,
       decoration: InputDecoration(
         filled: true,
