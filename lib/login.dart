@@ -155,6 +155,10 @@ class _PantallaLoginState extends State<PantallaLogin> {
 
       if (!mounted) return;
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Bienvenido ${sesion.nombre}')),
+      );
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

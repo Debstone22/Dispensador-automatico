@@ -47,13 +47,15 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Usuario registrado con exito")),
+        const SnackBar(
+          content: Text("Usuario registrado con exito y de forma segura"),
+        ),
       );
 
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al registrar: $e")),
+        SnackBar(content: Text(e.toString())),
       );
     }
   }

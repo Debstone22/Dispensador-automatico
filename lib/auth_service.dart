@@ -2,19 +2,28 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Roles definidos en el sistema
-enum RolUsuario { administrador, monitor, callcenter, familiar, desconocido }
+enum RolUsuario {
+  administrador,
+  monitor,
+  callcenter,
+  familiar,
+  paciente,
+  desconocido,
+}
 
 /// Modelo que devuelve el login: uid + rol resuelto
 class SesionUsuario {
   final String uid;
   final String email;
   final String nombre;
+  final String sexo;
   final RolUsuario rol;
 
   const SesionUsuario({
     required this.uid,
     required this.email,
     required this.nombre,
+    required this.sexo,
     required this.rol,
   });
 }
@@ -43,11 +52,13 @@ class AuthService {
     // CAMBIO AQUÍ: Usamos los nombres de tu captura de pantalla
     final rolString = (data['rol_usuario'] as String? ?? '').toLowerCase();
     final nombre = data['nombre_usuario'] as String? ?? 'Usuario';
+    final sexo = data['sexo_usuario'] as String? ?? 'H';
 
     return SesionUsuario(
       uid: uid,
       email: email.trim(),
       nombre: nombre,
+      sexo: sexo,
       rol: _parsearRol(rolString),
     );
   }
@@ -55,6 +66,29 @@ class AuthService {
   // ─── CERRAR SESIÓN ─────────────────────────────────────────────────────────
   Future<void> cerrarSesion() async {
     await _auth.signOut();
+  }
+
+  // ─── RECUPERAR CONTRASENA ────────────────────────────────────────────────
+  Future<void> recuperarContrasena(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim());
+    } catch (e) {
+      throw Exception('Error al enviar el correo de recuperacion.');
+    }
+  }
+
+  // ─── CAMBIAR CONTRASENA EN SESION ────────────────────────────────────────
+  Future<void> cambiarContrasena(String nuevaContrasena) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception('No hay usuario autenticado.');
+    }
+
+    try {
+      await user.updatePassword(nuevaContrasena.trim());
+    } catch (e) {
+      throw Exception('Error al cambiar la contrasena: $e');
+    }
   }
 
   // ─── SESIÓN ACTIVA AL ABRIR LA APP ────────────────────────────────────────
@@ -69,8 +103,9 @@ class AuthService {
     return SesionUsuario(
       uid: user.uid,
       email: user.email ?? '',
-      nombre: data['nombre'] as String? ?? 'Usuario',
-      rol: _parsearRol((data['rol'] as String? ?? '').toLowerCase()),
+      nombre: data['nombre_usuario'] as String? ?? 'Usuario',
+      sexo: data['sexo_usuario'] as String? ?? 'H',
+      rol: _parsearRol((data['rol_usuario'] as String? ?? '').toLowerCase()),
     );
   }
 
@@ -86,28 +121,37 @@ class AuthService {
         return RolUsuario.callcenter;
       case 'familiar':
         return RolUsuario.familiar;
+      case 'paciente':
+        return RolUsuario.paciente;
       default:
         return RolUsuario.desconocido;
     }
   }
 
-  // ─── CREAR COLABORADOR (solo Admin) ───────────────────────────────────────
-  Future<void> crearColaborador({
+  // ─── REGISTRO CON SCRYPT ────────────────────────
+  Future<void> registrarUsuarioConScrypt({
     required String email,
     required String password,
     required String nombre,
-    required String rol,
+    required String sexo,
   }) async {
-    final cred = await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    await _db.collection('usuario').doc(cred.user!.uid).set({
-      'nombre': nombre,
-      'email': email,
-      'rol': rol,
-      'creado_en': FieldValue.serverTimestamp(),
-      'dispositivos_asignados': [],
-    });
+    try {
+      UserCredential credencial = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+
+      String uidGenerado = credencial.user!.uid;
+
+      await _db.collection('usuario').doc(uidGenerado).set({
+        'nombre_usuario': nombre.trim(),
+        'correo_usuario': email.trim(),
+        'rol_usuario': 'paciente',
+        'sexo_usuario': sexo,
+        'creado_en': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception("Error al registrar: ${e.toString()}");
+    }
   }
 }
