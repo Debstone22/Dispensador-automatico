@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'menu_inferior.dart';
 import 'configuracion_slots.dart';
 import 'datos_medicamentos.dart';
@@ -59,11 +60,38 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
                 rol: widget.rolUsuario,
               ),
               const SizedBox(height: 30),
-              ScaleTransition(
-                scale: Tween(begin: 1.0, end: 1.05).animate(
-                  CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-                ),
-                child: _construirTarjetaAlerta(),
+              StreamBuilder<QuerySnapshot>(
+                stream: firestoreInstance.collection('pastillas').snapshots(),
+                builder: (context, snapshot) {
+                  bool mostrarAlerta = false;
+                  if (snapshot.hasData) {
+                    for (var doc in snapshot.data!.docs) {
+                      final datos = doc.data() as Map<String, dynamic>?;
+
+                      if (doc.id == 'info_pastillas') continue;
+
+                      int cantidad = datos != null &&
+                              datos.containsKey('cantidad_restante')
+                          ? (datos['cantidad_restante'] as num).toInt()
+                          : 10;
+
+                      if (cantidad <= 3) {
+                        mostrarAlerta = true;
+                        break;
+                      }
+                    }
+                  }
+
+                  return mostrarAlerta
+                      ? ScaleTransition(
+                          scale: Tween(begin: 1.0, end: 1.05).animate(
+                            CurvedAnimation(
+                                parent: _controller, curve: Curves.easeInOut),
+                          ),
+                          child: _construirTarjetaAlerta(),
+                        )
+                      : const SizedBox.shrink();
+                },
               ),
               const SizedBox(height: 30),
               const Text(
@@ -81,13 +109,75 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
                   child: Column(
                     children: [
                       Expanded(
-                        child: ListView.builder(
-                          itemCount: nombresPastillasGlobal.length,
-                          itemBuilder: (context, index) {
-                            return _buildProgressBar(
-                              nombresPastillasGlobal[index],
-                              0.5,
-                              _obtenerColor(index),
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: firestoreInstance
+                              .collection('pastillas')
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
+
+                            if (!snapshot.hasData ||
+                                snapshot.data!.docs.isEmpty) {
+                              return const Center(
+                                child: Text(
+                                  "No hay medicamentos registrados",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              );
+                            }
+
+                            var documentosPastillas =
+                                snapshot.data!.docs.where((doc) {
+                              return doc.id != 'info_pastillas';
+                            }).toList();
+
+                            if (documentosPastillas.isEmpty) {
+                              return const Center(
+                                child: Text(
+                                  "No hay medicamentos activos",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              itemCount: documentosPastillas.length,
+                              itemBuilder: (context, index) {
+                                var doc = documentosPastillas[index];
+                                final datosPastilla =
+                                    doc.data() as Map<String, dynamic>?;
+
+                                String medicamento = datosPastilla != null &&
+                                        datosPastilla
+                                            .containsKey('nombre_pastilla')
+                                    ? datosPastilla['nombre_pastilla']
+                                        .toString()
+                                    : 'Sin nombre';
+
+                                int cantidadActual = datosPastilla != null &&
+                                        datosPastilla
+                                            .containsKey('cantidad_restante')
+                                    ? (datosPastilla['cantidad_restante']
+                                            as num)
+                                        .toInt()
+                                    : 0;
+
+                                const int capacidadMaxima = 10;
+
+                                double progresoReal =
+                                    (cantidadActual / capacidadMaxima)
+                                        .clamp(0.0, 1.0);
+
+                                return _buildProgressBar(
+                                  medicamento,
+                                  progresoReal,
+                                  _obtenerColor(index),
+                                );
+                              },
                             );
                           },
                         ),
@@ -100,10 +190,12 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
                             MaterialPageRoute(
                               builder: (context) => PantallaConfiguracionSlots(
                                 nombreUsuario: widget.nombreUsuario,
-                                sexoUsuario: '',
+                                sexoUsuario: widget.sexoUsuario,
+                                correoUsuario: widget.correoUsuario,
+                                rolUsuario: widget.rolUsuario,
                               ),
                             ),
-                          ).then((_) => setState(() {}));
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF4CAF50),
@@ -139,7 +231,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
       Colors.green,
       Colors.orange,
       Colors.redAccent,
-      Colors.blue,
+      Colors.blue
     ];
     return colores[index % colores.length];
   }
@@ -151,7 +243,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
         color: const Color(0xFFFFF9C4),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.orange.withOpacity(0.1), blurRadius: 10),
+          BoxShadow(color: Colors.orange.withOpacity(0.1), blurRadius: 10)
         ],
       ),
       child: const Row(
@@ -160,11 +252,9 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
           SizedBox(width: 15),
           Expanded(
             child: Text(
-              "Tienes medicamentos por agotarse",
+              "Atencion! Tienes medicamentos por agotarse (3 unidades o menos)",
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF856404),
-              ),
+                  fontWeight: FontWeight.bold, color: Color(0xFF856404)),
             ),
           ),
         ],
@@ -173,15 +263,18 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
   }
 
   Widget _buildProgressBar(String nombre, double valor, Color color) {
+    String textoPorcentaje = "${(valor * 100).toInt()}%";
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
         children: [
           SizedBox(
-            width: 90,
+            width: 100,
             child: Text(
               nombre,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Expanded(
@@ -194,6 +287,12 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
             ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            textoPorcentaje,
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: color),
           ),
         ],
       ),

@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'menu_inferior.dart';
-import 'datos_medicamentos.dart'; // IMPORTANTE: Importar la lista global
+import 'datos_medicamentos.dart';
 
 class PantallaGestionNombres extends StatefulWidget {
-  final String nombreUsuario; // 👈 Agregamos la variable para el nombre
-  final String sexoUsuario; // 👈 Agregamos la variable para el sexo
+  final String nombreUsuario;
+  final String sexoUsuario;
+  final String rolUsuario;
+  final String correoUsuario;
 
   const PantallaGestionNombres({
     super.key,
-    required this.nombreUsuario, // 👈 Lo hacemos requerido en el constructor
-    required this.sexoUsuario, // 👈 Lo hacemos requerido en el constructor
+    required this.nombreUsuario,
+    required this.sexoUsuario,
+    required this.rolUsuario,
+    required this.correoUsuario,
   });
 
   @override
@@ -19,9 +24,9 @@ class PantallaGestionNombres extends StatefulWidget {
 class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
   final TextEditingController _controller = TextEditingController();
 
-  void _mostrarDialogo({int? index}) {
-    if (index != null) {
-      _controller.text = nombresPastillasGlobal[index];
+  void _mostrarDialogo({String? idDocumento, String? nombreActual}) {
+    if (idDocumento != null && nombreActual != null) {
+      _controller.text = nombreActual;
     } else {
       _controller.clear();
     }
@@ -29,7 +34,8 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(index == null ? "Agregar Medicamento" : "Editar Nombre"),
+        title: Text(
+            idDocumento == null ? "Agregar Medicamento" : "Editar Nombre"),
         content: TextField(
           controller: _controller,
           decoration: const InputDecoration(hintText: "Ej. Amoxicilina"),
@@ -40,16 +46,34 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
             child: const Text("Cancelar"),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_controller.text.isNotEmpty) {
-                setState(() {
-                  if (index == null) {
-                    nombresPastillasGlobal.add(_controller.text);
+                try {
+                  if (idDocumento == null) {
+                    await firestoreInstance.collection('pastillas').add({
+                      'nombre_pastilla': _controller.text,
+                      'descripcion_pastillas':
+                          'Medicamento registrado desde la app',
+                      'recomendaciones_pastillas':
+                          'Sin recomendaciones adicionales'
+                    });
                   } else {
-                    nombresPastillasGlobal[index] = _controller.text;
+                    await firestoreInstance
+                        .collection('pastillas')
+                        .doc(idDocumento)
+                        .update({'nombre_pastilla': _controller.text});
                   }
-                });
-                Navigator.pop(context);
+                  if (mounted) Navigator.pop(context);
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Error al guardar en Firebase: $e"),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                  }
+                }
               }
             },
             child: const Text("Guardar"),
@@ -65,7 +89,7 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
       backgroundColor: const Color(0xFFF1F8E9),
       appBar: AppBar(
         title: const Text(
-          "Gestión de Medicamentos",
+          "Gestion de Medicamentos",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
@@ -76,40 +100,97 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
         child: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                itemCount: nombresPastillasGlobal.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    margin: const EdgeInsets.only(bottom: 10),
-                    child: ListTile(
-                      title: Text(
-                        nombresPastillasGlobal[index],
-                        style: const TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
-                            onPressed: () => _mostrarDialogo(index: index),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: firestoreInstance.collection('pastillas').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text("No hay medicamentos en Firebase"),
+                    );
+                  }
+
+                  nombresPastillasGlobal = snapshot.data!.docs.map((doc) {
+                    final datos = doc.data() as Map<String, dynamic>?;
+                    if (datos == null) return 'Sin nombre';
+
+                    if (datos.containsKey('nombre_pastilla')) {
+                      return datos['nombre_pastilla'].toString();
+                    } else if (datos.containsKey('nombre')) {
+                      return datos['nombre'].toString();
+                    }
+                    return 'Medicamento sin nombre';
+                  }).toList();
+
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      var documento = snapshot.data!.docs[index];
+                      String idDoc = documento.id;
+
+                      final datosDoc =
+                          documento.data() as Map<String, dynamic>?;
+                      String nombreMedicamento = 'Medicamento sin nombre';
+
+                      if (datosDoc != null) {
+                        if (datosDoc.containsKey('nombre_pastilla')) {
+                          nombreMedicamento =
+                              datosDoc['nombre_pastilla'].toString();
+                        } else if (datosDoc.containsKey('nombre')) {
+                          nombreMedicamento = datosDoc['nombre'].toString();
+                        }
+                      }
+
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        margin: const EdgeInsets.only(bottom: 10),
+                        child: ListTile(
+                          title: Text(
+                            nombreMedicamento,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.delete,
-                              color: Colors.redAccent,
-                            ),
-                            onPressed: () {
-                              setState(
-                                () => nombresPastillasGlobal.removeAt(index),
-                              );
-                            },
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () => _mostrarDialogo(
+                                  idDocumento: idDoc,
+                                  nombreActual: nombreMedicamento,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.redAccent),
+                                onPressed: () async {
+                                  try {
+                                    await firestoreInstance
+                                        .collection('pastillas')
+                                        .doc(idDoc)
+                                        .delete();
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content:
+                                                Text("Error al eliminar: $e")),
+                                      );
+                                    }
+                                  }
+                                },
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -122,12 +203,11 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
         onPressed: () => _mostrarDialogo(),
         child: const Icon(Icons.add, color: Colors.white),
       ),
-      // 👈 Quitamos el const y pasamos el nombre del widget al menú
       bottomNavigationBar: MenuInferior(
         nombreUsuario: widget.nombreUsuario,
         sexoUsuario: widget.sexoUsuario,
-        correoUsuario: '',
-        rolUsuario: '',
+        correoUsuario: widget.correoUsuario,
+        rolUsuario: widget.rolUsuario,
       ),
     );
   }

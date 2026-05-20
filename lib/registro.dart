@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // 👈 Asegúrate de importar Firestore
+import 'auth_service.dart';
 
 class PantallaRegistro extends StatefulWidget {
   const PantallaRegistro({super.key});
@@ -13,8 +13,9 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
   final TextEditingController _correoController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
 
-  // 👈 Variable para almacenar la selección de sexo (null por defecto)
   String? _sexoSeleccionado;
+
+  final AuthService _authService = AuthService();
 
   @override
   void dispose() {
@@ -24,9 +25,7 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
     super.dispose();
   }
 
-  // 👈 Función para registrar al usuario en Firestore
   Future<void> _registrarUsuario() async {
-    // Validamos que ningún campo esté vacío
     if (_nombreController.text.isEmpty ||
         _correoController.text.isEmpty ||
         _passController.text.isEmpty ||
@@ -40,24 +39,22 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
     }
 
     try {
-      // Agrega el documento a tu colección 'usuario' tal como está en tu consola
-      await FirebaseFirestore.instance.collection('usuario').add({
-        'nombre_usuario': _nombreController.text.trim(),
-        'correo_usuario': _correoController.text.trim(),
-        'contraseña_usuario': _passController.text.trim(),
-        'rol_usuario': 'paciente', // Por defecto según tu captura
-        'sexo_usuario': _sexoSeleccionado, // 👈 Aquí se guarda "H" o "M"
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Usuario registrado con éxito")),
+      await _authService.registrarUsuarioConScrypt(
+        email: _correoController.text,
+        password: _passController.text,
+        nombre: _nombreController.text,
+        sexo: _sexoSeleccionado!,
       );
 
-      Navigator.pop(context); // Regresa al Login tras guardar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Usuario registrado con exito")),
+      );
+
+      Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error al registrar: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error al registrar: $e")),
+      );
     }
   }
 
@@ -93,33 +90,25 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
                 style: TextStyle(color: Colors.black54, fontSize: 16),
               ),
               const SizedBox(height: 40),
-
-              // Campo de Nombre
               _crearCampoTexto(
                 icono: Icons.person,
                 texto: "Nombre completo",
                 controller: _nombreController,
               ),
               const SizedBox(height: 20),
-
-              // Campo de Correo
               _crearCampoTexto(
                 icono: Icons.email,
-                texto: "Correo electrónico",
+                texto: "Correo electronico",
                 controller: _correoController,
               ),
               const SizedBox(height: 20),
-
-              // Campo de Contraseña
               _crearCampoTexto(
                 icono: Icons.lock,
-                texto: "Contraseña",
+                texto: "Contrasena",
                 esClave: true,
                 controller: _passController,
               ),
               const SizedBox(height: 20),
-
-              // 👈 NUEVO: Selector desplegable para Sexo (H / M)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
@@ -151,14 +140,11 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
                 ),
               ),
               const SizedBox(height: 40),
-
-              // Botón de Registrarse
               SizedBox(
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed:
-                      _registrarUsuario, // 👈 Llama a la función de Firebase
+                  onPressed: _registrarUsuario,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4CAF50),
                     shape: RoundedRectangleBorder(

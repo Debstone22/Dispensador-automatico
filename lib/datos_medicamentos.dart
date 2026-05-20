@@ -1,11 +1,9 @@
 // datos_medicamentos.dart
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Esta lista será accesible desde cualquier pantalla que importe este archivo
-final List<String> nombresPastillasGlobal = [
-  'Paracetamol',
-  'Naproxeno',
-  'Ibuprofeno',
-  'Deflazacort',
-  'Diclofenaco',
-];
+// Listas globales que se rellenan dinámicamente desde Firebase
+List<String> nombresPastillasGlobal = [];
+List<Map<String, dynamic>> slotsGlobal = [];
+
+// Instancia global de Firestore
+final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;

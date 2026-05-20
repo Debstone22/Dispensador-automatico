@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'auth_service.dart';
 import 'registro.dart';
 import 'pantalla_principal.dart';
 
@@ -87,7 +87,7 @@ class _BannerAnimadoState extends State<BannerAnimado> {
                   ),
                 ),
                 Text(
-                  "Tu dispensador automático en casa",
+                  "Tu dispensador automatico en casa",
                   style: TextStyle(
                     color: Color.fromARGB(179, 41, 110, 49),
                     fontSize: 14,
@@ -113,6 +113,24 @@ class _PantallaLoginState extends State<PantallaLogin> {
   final TextEditingController _passController = TextEditingController();
   bool _isObscure = true;
   bool _isLoading = false;
+  final AuthService _authService = AuthService();
+
+  String _rolToString(RolUsuario rol) {
+    switch (rol) {
+      case RolUsuario.administrador:
+        return 'administrador';
+      case RolUsuario.monitor:
+        return 'monitor';
+      case RolUsuario.callcenter:
+        return 'callcenter';
+      case RolUsuario.familiar:
+        return 'familiar';
+      case RolUsuario.paciente:
+        return 'paciente';
+      case RolUsuario.desconocido:
+        return 'desconocido';
+    }
+  }
 
   Future<void> _iniciarSesion() async {
     String inputUsuario = _usuarioController.text.trim();
@@ -130,56 +148,95 @@ class _PantallaLoginState extends State<PantallaLogin> {
     });
 
     try {
-      final QuerySnapshot resultado = await FirebaseFirestore.instance
-          .collection('usuario')
-          .where('correo_usuario', isEqualTo: inputUsuario)
-          .get();
+      final sesion = await _authService.iniciarSesion(
+        inputUsuario,
+        inputPassword,
+      );
 
-      if (resultado.docs.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('El usuario o correo no existe')),
-        );
-      } else {
-        final datosUsuario =
-            resultado.docs.first.data() as Map<String, dynamic>;
-        String passwordCorrecta = datosUsuario['contraseña_usuario'] ?? '';
+      if (!mounted) return;
 
-        if (passwordCorrecta == inputPassword) {
-          String nombreReal = datosUsuario['nombre_usuario'] ?? 'Usuario';
-          String sexoReal = datosUsuario['sexo_usuario'] ?? 'H';
-
-          // Extraemos los campos reales de Firebase
-          String correoReal = datosUsuario['correo_usuario'] ?? inputUsuario;
-          String rolReal = datosUsuario['rol_usuario'] ?? 'Paciente';
-
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PantallaPrincipal(
-                  nombreUsuario: nombreReal,
-                  sexoUsuario: sexoReal,
-                  correoUsuario: correoReal, // 👈 Enviado
-                  rolUsuario: rolReal, // 👈 Enviado
-                ),
-              ),
-            );
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Contraseña incorrecta')),
-          );
-        }
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
+      Navigator.pushReplacement(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error al conectar: $e')));
+        MaterialPageRoute(
+          builder: (context) => PantallaPrincipal(
+            nombreUsuario: sesion.nombre,
+            sexoUsuario: sesion.sexo,
+            correoUsuario: sesion.email,
+            rolUsuario: _rolToString(sesion.rol),
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al iniciar sesion: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
+  }
 
-    setState(() {
-      _isLoading = false;
-    });
+  Future<void> _mostrarRecuperacion() async {
+    final TextEditingController emailController = TextEditingController(
+      text: _usuarioController.text.trim(),
+    );
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Recuperar contrasena'),
+          content: TextField(
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              labelText: 'Correo',
+              hintText: 'tucorreo@ejemplo.com',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final email = emailController.text.trim();
+                if (email.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Ingresa tu correo.')),
+                  );
+                  return;
+                }
+
+                try {
+                  await _authService.recuperarContrasena(email);
+                  if (!mounted) return;
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Revisa tu correo para restablecer la contrasena.',
+                      ),
+                    ),
+                  );
+                } catch (e) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al enviar correo: $e')),
+                  );
+                }
+              },
+              child: const Text('Enviar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -231,7 +288,7 @@ class _PantallaLoginState extends State<PantallaLogin> {
                           controller: _passController,
                           obscureText: _isObscure,
                           decoration: InputDecoration(
-                            labelText: "Contraseña",
+                            labelText: "Contrasena",
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
                               icon: Icon(
@@ -242,6 +299,13 @@ class _PantallaLoginState extends State<PantallaLogin> {
                               onPressed: () =>
                                   setState(() => _isObscure = !_isObscure),
                             ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: _mostrarRecuperacion,
+                            child: const Text('Olvide mi clave'),
                           ),
                         ),
                       ],
@@ -257,7 +321,7 @@ class _PantallaLoginState extends State<PantallaLogin> {
                     ),
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text("Iniciar Sesión"),
+                        : const Text("Iniciar Sesion"),
                   ),
                   const SizedBox(height: 20),
                   TextButton(
@@ -270,7 +334,7 @@ class _PantallaLoginState extends State<PantallaLogin> {
                       );
                     },
                     child: const Text(
-                      "¿No tienes cuenta? Regístrate aquí",
+                      "No tienes cuenta? Registrate aqui",
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

@@ -55,7 +55,9 @@ class MenuInferior extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => PantallaGestionNombres(
                 nombreUsuario: nombreUsuario,
-                sexoUsuario: '',
+                sexoUsuario: sexoUsuario,
+                correoUsuario: correoUsuario,
+                rolUsuario: rolUsuario,
               ),
             ),
           );
@@ -77,7 +79,9 @@ class MenuInferior extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => PantallaConfiguracionSlots(
                 nombreUsuario: nombreUsuario,
-                sexoUsuario: '',
+                sexoUsuario: sexoUsuario,
+                correoUsuario: correoUsuario,
+                rolUsuario: rolUsuario,
               ),
             ),
           );

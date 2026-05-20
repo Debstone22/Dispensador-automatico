@@ -66,60 +66,32 @@ class _PanelConexionesState extends State<PanelConexiones> {
                   children: [
                     const Row(
                       children: [
-                        Icon(
-                          Icons.settings_input_antenna,
-                          color: Colors.grey,
-                          size: 20,
-                        ),
+                        Icon(Icons.settings_input_antenna,
+                            color: Colors.grey, size: 20),
                         SizedBox(width: 10),
                         Text(
                           "Estado del Hardware",
                           style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black54,
-                          ),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54),
                         ),
                       ],
                     ),
                     const SizedBox(height: 30),
                     _buildStatusItem(
-                      Icons.developer_board,
-                      "Arduino Uno",
-                      "Conectado",
-                      true,
-                    ),
+                        Icons.developer_board, "Arduino Uno", "Conectado", true),
                     _buildStatusItem(
-                      Icons.wifi,
-                      "Módulo WiFi (ESP)",
-                      "MiRedCasa",
-                      true,
-                    ),
+                        Icons.wifi, "Modulo WiFi (ESP)", "MiRedCasa", true),
+                    _buildStatusItem(Icons.settings_applications,
+                        "Servomotores", "Calibrados", true),
+                    _buildStatusItem(Icons.schedule, "Reloj RTC DS3231",
+                        "Sincronizado", true),
                     _buildStatusItem(
-                      Icons.settings_applications,
-                      "Servomotores",
-                      "Calibrados",
-                      true,
-                    ),
-                    _buildStatusItem(
-                      Icons.schedule,
-                      "Reloj RTC DS3231",
-                      "Sincronizado",
-                      true,
-                    ),
-                    _buildStatusItem(
-                      Icons.volume_up,
-                      "Buzzer de Alarma",
-                      "Operativo",
-                      true,
-                    ),
+                        Icons.volume_up, "Buzzer de Alarma", "Operativo", true),
                     const Divider(height: 30, color: Colors.black12),
                     _buildStatusItem(
-                      Icons.history,
-                      "Último reporte",
-                      "Hace 2 minutos",
-                      false,
-                    ),
+                        Icons.history, "Ultimo reporte", "Hace 2 minutos", false),
                     const SizedBox(height: 25),
                     SizedBox(
                       width: double.infinity,
@@ -129,8 +101,7 @@ class _PanelConexionesState extends State<PanelConexiones> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                'Sincronizando con Arduino... Todo está OK',
-                              ),
+                                  'Sincronizando con Arduino... Todo esta OK'),
                               backgroundColor: Color(0xFF2E7D32),
                             ),
                           );
@@ -138,17 +109,15 @@ class _PanelConexionesState extends State<PanelConexiones> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2962FF),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
+                              borderRadius: BorderRadius.circular(15)),
                           elevation: 2,
                         ),
                         child: const Text(
-                          "Verificar Conexión",
+                          "Verificar Conexion",
                           style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -161,8 +130,7 @@ class _PanelConexionesState extends State<PanelConexiones> {
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const PantallaLogin(),
-                            ),
+                                builder: (context) => const PantallaLogin()),
                             (Route<dynamic> route) => false,
                           );
                         },
@@ -170,16 +138,11 @@ class _PanelConexionesState extends State<PanelConexiones> {
                           foregroundColor: Colors.red,
                           side: const BorderSide(color: Colors.red, width: 2),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
+                              borderRadius: BorderRadius.circular(15)),
                         ),
-                        child: const Text(
-                          "Cerrar Sesión",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: const Text("Cerrar Sesion",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],
@@ -188,7 +151,7 @@ class _PanelConexionesState extends State<PanelConexiones> {
               const SizedBox(height: 20),
               const Center(
                 child: Text(
-                  "Modo de visualización: Hardware Local",
+                  "Modo de visualizacion: Hardware Local",
                   style: TextStyle(color: Colors.black38, fontSize: 12),
                 ),
               ),
@@ -206,11 +169,7 @@ class _PanelConexionesState extends State<PanelConexiones> {
   }
 
   Widget _buildStatusItem(
-    IconData icon,
-    String title,
-    String subtitle,
-    bool isHardware,
-  ) {
+      IconData icon, String title, String subtitle, bool isHardware) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Row(
@@ -228,17 +187,12 @@ class _PanelConexionesState extends State<PanelConexiones> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 13, color: Colors.black54),
-                ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(title,
+                    style:
+                        const TextStyle(fontSize: 13, color: Colors.black54)),
+                Text(subtitle,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
               ],
             ),
           ),

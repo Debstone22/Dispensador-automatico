@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'auth_service.dart';
 
-class PantallaDatosUsuario extends StatelessWidget {
+class PantallaDatosUsuario extends StatefulWidget {
   final String nombre;
   final String correo;
   final String sexo;
@@ -15,8 +16,64 @@ class PantallaDatosUsuario extends StatelessWidget {
   });
 
   @override
+  State<PantallaDatosUsuario> createState() => _PantallaDatosUsuarioState();
+}
+
+class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
+  final AuthService _authService = AuthService();
+
+  Future<void> _enviarLinkRecuperacion() async {
+    try {
+      await _authService.recuperarContrasena(widget.correo);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Revisa tu correo para restablecer la contrasena.'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+
+  Future<void> _confirmarEnvioLink() async {
+    final bool? confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar envio'),
+          content: Text(
+            'Se enviara un enlace de recuperacion a ${widget.correo}.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Enviar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar == true) {
+      await _enviarLinkRecuperacion();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final String urlImagen = (sexo == 'H')
+    final String sexoNormalizado = widget.sexo.trim().toUpperCase();
+    final bool esHombre = sexoNormalizado == 'H' ||
+        sexoNormalizado == 'HOMBRE' ||
+        sexoNormalizado == 'MASCULINO';
+    final String urlImagen = esHombre
         ? 'https://e7.pngegg.com/pngimages/348/800/png-clipart-man-wearing-blue-shirt-illustration-computer-icons-avatar-user-login-avatar-blue-child-thumbnail.png'
         : 'https://thumbs.dreamstime.com/b/mujer-de-render-d-png-trabajando-en-tecnolog%C3%ADa-avatar-digital-port%C3%A1til-contra-fondo-transparente-384935566.jpg';
 
@@ -49,7 +106,7 @@ class PantallaDatosUsuario extends StatelessWidget {
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  nombre,
+                  widget.nombre,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -57,7 +114,7 @@ class PantallaDatosUsuario extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  rol.toUpperCase(),
+                  widget.rol.toUpperCase(),
                   style: const TextStyle(
                     color: Colors.white70,
                     letterSpacing: 1.2,
@@ -76,18 +133,35 @@ class PantallaDatosUsuario extends StatelessWidget {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    _buildInfoRow(Icons.email_outlined, "Correo", correo),
+                    _buildInfoRow(
+                      Icons.email_outlined,
+                      "Correo",
+                      widget.correo,
+                    ),
                     const Divider(),
                     _buildInfoRow(
                       Icons.wc_outlined,
                       "Sexo",
-                      sexo == 'H' ? "Hombre" : "Mujer",
+                      esHombre ? "Hombre" : "Mujer",
                     ),
                     const Divider(),
                     _buildInfoRow(
                       Icons.admin_panel_settings_outlined,
                       "Rol",
-                      rol,
+                      widget.rol,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _confirmarEnvioLink,
+                        icon: const Icon(Icons.lock_reset),
+                        label: const Text('Enviar link de recuperacion'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4CAF50),
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
                     ),
                   ],
                 ),
