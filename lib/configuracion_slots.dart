@@ -1,14 +1,21 @@
+// configuracion_slots.dart (OPCIÓN A)
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'menu_inferior.dart';
-import 'datos_medicamentos.dart'; // IMPORTANTE: Importamos la lista compartida
+import 'datos_medicamentos.dart';
 
 class PantallaConfiguracionSlots extends StatefulWidget {
-  final String nombreUsuario; // 👈 Agregamos la variable para el nombre
-  final String sexoUsuario; // 👈 Agregamos la variable para el sexo
+  final String nombreUsuario;
+  final String sexoUsuario;
+  final String rolUsuario;
+  final String correoUsuario;
+
   const PantallaConfiguracionSlots({
     super.key,
-    required this.nombreUsuario, // 👈 Lo hacemos requerido en el constructor
-    required this.sexoUsuario, // 👈 Lo hacemos requerido en el constructor
+    required this.nombreUsuario,
+    required this.sexoUsuario,
+    required this.rolUsuario,
+    required this.correoUsuario,
   });
 
   @override
@@ -18,198 +25,273 @@ class PantallaConfiguracionSlots extends StatefulWidget {
 
 class _PantallaConfiguracionSlotsState
     extends State<PantallaConfiguracionSlots> {
-  final Map<String, Map<String, String>> _configuracionSlots = {};
+  final TextEditingController _cantidadController = TextEditingController();
+  final TextEditingController _horaController = TextEditingController();
+  int _intervaloSeleccionado = 8;
 
-  @override
-  void initState() {
-    super.initState();
-    for (var medicamento in nombresPastillasGlobal) {
-      _configuracionSlots[medicamento] = {'cantidad': '1', 'hora': '08:00 AM'};
+  Future<void> _seleccionarHora(
+      BuildContext context, StateSetter setDialogState) async {
+    TimeOfDay? horaSeleccionada = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (horaSeleccionada != null && context.mounted) {
+      setDialogState(() {
+        _horaController.text = horaSeleccionada.format(context);
+      });
     }
+  }
+
+  void _mostrarDialogoEdicion({
+    required String idPastilla,
+    required int cantidadActual,
+    required String nombrePastilla,
+    required String horaActual,
+    required int intervaloActual,
+  }) {
+    _cantidadController.text = cantidadActual.toString();
+    _horaController.text = horaActual;
+    _intervaloSeleccionado =
+        [3, 8, 12].contains(intervaloActual) ? intervaloActual : 8;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text("Configurar Slot: $nombrePastilla",
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: _cantidadController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: "Cantidad Restante (Máx. 10)",
+                        hintText: "Ej. 10",
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    TextField(
+                      controller: _horaController,
+                      readOnly: true,
+                      decoration: const InputDecoration(
+                        labelText: "Hora de Primera Dosis",
+                        suffixIcon: Icon(Icons.access_time),
+                      ),
+                      onTap: () => _seleccionarHora(context, setDialogState),
+                    ),
+                    const SizedBox(height: 15),
+                    DropdownButtonFormField<int>(
+                      value: _intervaloSeleccionado,
+                      decoration: const InputDecoration(
+                          labelText: "Repetir cada (Horas)"),
+                      items: const [
+                        DropdownMenuItem(value: 3, child: Text("Cada 3 horas")),
+                        DropdownMenuItem(value: 8, child: Text("Cada 8 horas")),
+                        DropdownMenuItem(
+                            value: 12, child: Text("Cada 12 horas")),
+                      ],
+                      onChanged: (nuevoValor) {
+                        if (nuevoValor != null) {
+                          setDialogState(() {
+                            _intervaloSeleccionado = nuevoValor;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancelar"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_cantidadController.text.isNotEmpty &&
+                        _horaController.text.isNotEmpty) {
+                      int nuevaCantidad =
+                          int.tryParse(_cantidadController.text) ?? 0;
+
+                      if (nuevaCantidad > 10) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  "La cantidad máxima permitida es de 10 pastillas."),
+                              backgroundColor: Colors.orangeAccent,
+                            ),
+                          );
+                        }
+                        return;
+                      }
+
+                      final navigator = Navigator.of(context);
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+                      try {
+                        // Guardamos la configuración dentro de la misma pastilla
+                        await firestoreInstance
+                            .collection('pastillas')
+                            .doc(idPastilla)
+                            .update({
+                          'cantidad_restante': nuevaCantidad,
+                          'primera_dosis': _horaController.text,
+                          'repetir_cada': _intervaloSeleccionado,
+                        });
+
+                        if (!context.mounted) return;
+                        navigator.pop();
+                      } catch (e) {
+                        if (context.mounted) {
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(
+                                content: Text("Error: $e"),
+                                backgroundColor: Colors.redAccent),
+                          );
+                        }
+                      }
+                    }
+                  },
+                  child: const Text("Guardar"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F8E9),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              const Text(
-                "Configura tu MiniDoc",
-                style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 15),
-              const Text(
-                "Establece la cantidad y el horario para cada uno de tus medicamentos registrados.",
-                style: TextStyle(fontSize: 15, color: Colors.black54),
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: nombresPastillasGlobal.length,
-                  itemBuilder: (context, index) {
-                    String medicamento = nombresPastillasGlobal[index];
+      appBar: AppBar(
+        title: const Text(
+          "Configuración de Slots",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: firestoreInstance.collection('pastillas').snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 15.0),
-                      child: _buildSlotCard(
-                        titulo: "Slot ${index + 1}",
-                        nombreMedicamento: medicamento,
-                        cantidad: _configuracionSlots[medicamento]
-                                ?['cantidad'] ??
-                            '1',
-                        hora: _configuracionSlots[medicamento]?['hora'] ??
-                            '08:00 AM',
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(
+                  child: Text(
+                      "No hay medicamentos registrados en la Gestión de Medicamentos."));
+            }
+
+            // Actualizamos la lista global para compatibilidad de la app
+            nombresPastillasGlobal = snapshot.data!.docs.map((doc) {
+              final datos = doc.data() as Map<String, dynamic>?;
+              return datos != null && datos.containsKey('nombre_pastilla')
+                  ? datos['nombre_pastilla'].toString()
+                  : 'Sin nombre';
+            }).toList();
+
+            return ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                var documento = snapshot.data!.docs[index];
+                String idPastilla = documento.id;
+                final datos = documento.data() as Map<String, dynamic>?;
+
+                String nombreMedicamento =
+                    datos != null && datos.containsKey('nombre_pastilla')
+                        ? datos['nombre_pastilla'].toString()
+                        : 'Sin nombre';
+
+                int cantidadRestante =
+                    datos != null && datos.containsKey('cantidad_restante')
+                        ? (datos['cantidad_restante'] as num).toInt()
+                        : 0;
+
+                String primeraDosis =
+                    datos != null && datos.containsKey('primera_dosis')
+                        ? datos['primera_dosis'].toString()
+                        : 'No programada';
+
+                int repetirCada =
+                    datos != null && datos.containsKey('repetir_cada')
+                        ? (datos['repetir_cada'] as num).toInt()
+                        : 8;
+
+                return Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  margin: const EdgeInsets.only(bottom: 15),
+                  elevation: 2,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: const Color(0xFF4CAF50),
+                      child: Text(
+                        "${index + 1}",
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Configuración guardada correctamente'),
+                    ),
+                    title: Text(
+                      "SLOT ${index + 1}",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 5.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Medicamento: $nombreMedicamento",
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500)),
+                          Text("Cantidad: $cantidadRestante / 10 unidades",
+                              style: TextStyle(
+                                  color: cantidadRestante < 3
+                                      ? Colors.red
+                                      : Colors.black87)),
+                          Text("Primera dosis: $primeraDosis",
+                              style: const TextStyle(
+                                  fontSize: 13, color: Colors.blueGrey)),
+                          Text("Frecuencia: Cada $repetirCada horas",
+                              style: const TextStyle(
+                                  fontSize: 13, color: Colors.blueGrey)),
+                        ],
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4CAF50),
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 55),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.settings, color: Colors.blueGrey),
+                      onPressed: () => _mostrarDialogoEdicion(
+                        idPastilla: idPastilla,
+                        cantidadActual: cantidadRestante,
+                        nombrePastilla: nombreMedicamento,
+                        horaActual: primeraDosis,
+                        intervaloActual: repetirCada,
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    "Guardar Configuración",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
+                );
+              },
+            );
+          },
         ),
       ),
-      // 👈 Quitamos el const y pasamos el nombre del widget al menú
       bottomNavigationBar: MenuInferior(
         nombreUsuario: widget.nombreUsuario,
         sexoUsuario: widget.sexoUsuario,
-        correoUsuario: '',
-        rolUsuario: '',
-      ),
-    );
-  }
-
-  Widget _buildSlotCard({
-    required String titulo,
-    required String nombreMedicamento,
-    required String cantidad,
-    required String hora,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                titulo,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                  fontSize: 14,
-                ),
-              ),
-              const Icon(
-                Icons.check_circle_outline,
-                color: Colors.green,
-                size: 20,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            nombreMedicamento,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const Divider(height: 30),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Cantidad",
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                    const SizedBox(height: 5),
-                    _buildInputCuadrado(cantidad, Icons.medication_liquid),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Horario",
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                    const SizedBox(height: 5),
-                    _buildInputCuadrado(hora, Icons.access_time),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInputCuadrado(String texto, IconData icono) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icono, size: 16, color: Colors.black54),
-          const SizedBox(width: 8),
-          Text(
-            texto,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-        ],
+        correoUsuario: widget.correoUsuario,
+        rolUsuario: widget.rolUsuario,
       ),
     );
   }

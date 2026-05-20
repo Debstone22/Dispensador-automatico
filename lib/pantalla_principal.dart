@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'menu_inferior.dart';
 import 'configuracion_slots.dart';
 import 'datos_medicamentos.dart';
@@ -59,18 +60,51 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
                 rol: widget.rolUsuario,
               ),
               const SizedBox(height: 30),
-              ScaleTransition(
-                scale: Tween(begin: 1.0, end: 1.05).animate(
-                  CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-                ),
-                child: _construirTarjetaAlerta(),
+
+              // 🔄 ESCUCHA EN TIEMPO REAL: Alerta de stock crítico leyendo desde la colección 'pastillas'
+              StreamBuilder<QuerySnapshot>(
+                stream: firestoreInstance.collection('pastillas').snapshots(),
+                builder: (context, snapshot) {
+                  bool mostrarAlerta = false;
+                  if (snapshot.hasData) {
+                    for (var doc in snapshot.data!.docs) {
+                      final datos = doc.data() as Map<String, dynamic>?;
+
+                      // Ignoramos documentos estáticos de plantilla si existieran
+                      if (doc.id == 'info_pastillas') continue;
+
+                      int cantidad = datos != null &&
+                              datos.containsKey('cantidad_restante')
+                          ? (datos['cantidad_restante'] as num).toInt()
+                          : 10;
+
+                      // Si algún medicamento real tiene 3 unidades o menos, se activa la advertencia
+                      if (cantidad <= 3) {
+                        mostrarAlerta = true;
+                        break;
+                      }
+                    }
+                  }
+
+                  return mostrarAlerta
+                      ? ScaleTransition(
+                          scale: Tween(begin: 1.0, end: 1.05).animate(
+                            CurvedAnimation(
+                                parent: _controller, curve: Curves.easeInOut),
+                          ),
+                          child: _construirTarjetaAlerta(),
+                        )
+                      : const SizedBox.shrink();
+                },
               ),
+
               const SizedBox(height: 30),
               const Text(
                 "Capacidad de tus pastillas",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 15),
+
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -81,13 +115,78 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
                   child: Column(
                     children: [
                       Expanded(
-                        child: ListView.builder(
-                          itemCount: nombresPastillasGlobal.length,
-                          itemBuilder: (context, index) {
-                            return _buildProgressBar(
-                              nombresPastillasGlobal[index],
-                              0.5,
-                              _obtenerColor(index),
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: firestoreInstance
+                              .collection('pastillas')
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
+
+                            if (!snapshot.hasData ||
+                                snapshot.data!.docs.isEmpty) {
+                              return const Center(
+                                child: Text(
+                                  "No hay medicamentos registrados",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              );
+                            }
+
+                            // Filtramos los documentos para excluir plantillas de guía y dejar solo los medicamentos reales
+                            var documentosPastillas =
+                                snapshot.data!.docs.where((doc) {
+                              return doc.id != 'info_pastillas';
+                            }).toList();
+
+                            if (documentosPastillas.isEmpty) {
+                              return const Center(
+                                child: Text(
+                                  "No hay medicamentos activos",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              itemCount: documentosPastillas.length,
+                              itemBuilder: (context, index) {
+                                var doc = documentosPastillas[index];
+                                final datosPastilla =
+                                    doc.data() as Map<String, dynamic>?;
+
+                                // Obtención del nombre real del campo de tu base de datos
+                                String medicamento = datosPastilla != null &&
+                                        datosPastilla
+                                            .containsKey('nombre_pastilla')
+                                    ? datosPastilla['nombre_pastilla']
+                                        .toString()
+                                    : 'Sin nombre';
+
+                                int cantidadActual = datosPastilla != null &&
+                                        datosPastilla
+                                            .containsKey('cantidad_restante')
+                                    ? (datosPastilla['cantidad_restante']
+                                            as num)
+                                        .toInt()
+                                    : 0;
+
+                                const int capacidadMaxima = 10;
+
+                                // Operación matemática adaptada para reflejar el progreso real (rango 0.0 a 1.0)
+                                double progresoReal =
+                                    (cantidadActual / capacidadMaxima)
+                                        .clamp(0.0, 1.0);
+
+                                return _buildProgressBar(
+                                  medicamento,
+                                  progresoReal,
+                                  _obtenerColor(index),
+                                );
+                              },
                             );
                           },
                         ),
@@ -100,10 +199,12 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
                             MaterialPageRoute(
                               builder: (context) => PantallaConfiguracionSlots(
                                 nombreUsuario: widget.nombreUsuario,
-                                sexoUsuario: '',
+                                sexoUsuario: widget.sexoUsuario,
+                                correoUsuario: widget.correoUsuario,
+                                rolUsuario: widget.rolUsuario,
                               ),
                             ),
-                          ).then((_) => setState(() {}));
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF4CAF50),
@@ -160,7 +261,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
           SizedBox(width: 15),
           Expanded(
             child: Text(
-              "Tienes medicamentos por agotarse",
+              "¡Atención! Tienes medicamentos por agotarse (3 unidades o menos)",
               style: TextStyle(
                   fontWeight: FontWeight.bold, color: Color(0xFF856404)),
             ),
@@ -171,15 +272,19 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
   }
 
   Widget _buildProgressBar(String nombre, double valor, Color color) {
+    String textoPorcentaje = "${(valor * 100).toInt()}%";
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
         children: [
           SizedBox(
-            width: 90,
-            child: Text(nombre,
-                style:
-                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+            width: 100,
+            child: Text(
+              nombre,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           Expanded(
             child: ClipRRect(
@@ -191,6 +296,12 @@ class _PantallaPrincipalState extends State<PantallaPrincipal>
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
             ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            textoPorcentaje,
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: color),
           ),
         ],
       ),
