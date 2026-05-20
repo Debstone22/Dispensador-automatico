@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'auth_service.dart';
 import 'registro.dart';
-import 'pantalla_principal.dart';
+import 'role_router.dart';
 
 class BannerAnimado extends StatefulWidget {
   const BannerAnimado({super.key});
@@ -115,22 +115,6 @@ class _PantallaLoginState extends State<PantallaLogin> {
   bool _isLoading = false;
   final AuthService _authService = AuthService();
 
-  String _rolToString(RolUsuario rol) {
-    switch (rol) {
-      case RolUsuario.administrador:
-        return 'administrador';
-      case RolUsuario.monitor:
-        return 'monitor';
-      case RolUsuario.callcenter:
-        return 'callcenter';
-      case RolUsuario.familiar:
-        return 'familiar';
-      case RolUsuario.paciente:
-        return 'paciente';
-      case RolUsuario.desconocido:
-        return 'desconocido';
-    }
-  }
 
   Future<void> _iniciarSesion() async {
     String inputUsuario = _usuarioController.text.trim();
@@ -162,12 +146,7 @@ class _PantallaLoginState extends State<PantallaLogin> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => PantallaPrincipal(
-            nombreUsuario: sesion.nombre,
-            sexoUsuario: sesion.sexo,
-            correoUsuario: sesion.email,
-            rolUsuario: _rolToString(sesion.rol),
-          ),
+          builder: (context) => buildHomeForRole(sesion),
         ),
       );
     } catch (e) {

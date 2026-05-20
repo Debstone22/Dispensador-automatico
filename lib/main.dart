@@ -4,10 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'auth_service.dart';
 import 'login.dart';
-import 'pantalla_principal.dart';
-import 'dashboards/dashboard_admin.dart';
-import 'dashboards/dashboard_callcenter.dart';
-import 'dashboards/dashboard_monitor.dart';
+import 'role_router.dart';
 
 Future<void> main() async {
   // 1. Garantiza que los servicios de Flutter estén listos
@@ -69,43 +66,10 @@ class AuthGate extends StatelessWidget {
               return const PantallaLogin();
             }
 
-            switch (sesion.rol) {
-              case RolUsuario.administrador:
-                return DashboardAdmin(sesion: sesion);
-              case RolUsuario.callcenter:
-                return DashboardCallCenter(sesion: sesion);
-              case RolUsuario.monitor:
-                return DashboardMonitor(sesion: sesion);
-              case RolUsuario.familiar:
-              case RolUsuario.paciente:
-              case RolUsuario.desconocido:
-                return PantallaPrincipal(
-                  nombreUsuario: sesion.nombre,
-                  sexoUsuario: sesion.sexo,
-                  correoUsuario: sesion.email,
-                  rolUsuario: _rolToString(sesion.rol),
-                );
-            }
+            return buildHomeForRole(sesion);
           },
         );
       },
     );
-  }
-
-  String _rolToString(RolUsuario rol) {
-    switch (rol) {
-      case RolUsuario.administrador:
-        return 'administrador';
-      case RolUsuario.monitor:
-        return 'monitor';
-      case RolUsuario.callcenter:
-        return 'callcenter';
-      case RolUsuario.familiar:
-        return 'familiar';
-      case RolUsuario.paciente:
-        return 'paciente';
-      case RolUsuario.desconocido:
-        return 'desconocido';
-    }
   }
 }
