@@ -1,9 +1,7 @@
-// datos_medicamentos.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Listas globales que se rellenan dinámicamente desde Firebase
+// Listas globales auxiliares
 List<String> nombresPastillasGlobal = [];
-List<Map<String, dynamic>> slotsGlobal = [];
 
-// Instancia global de Firestore
-final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+// Instancia de conexión segura
+FirebaseFirestore get firestoreInstance => FirebaseFirestore.instance;
