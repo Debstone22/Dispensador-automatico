@@ -41,59 +41,63 @@ class _DashboardAdminState extends State<DashboardAdmin> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 color: _verde,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
               ),
               child:
-                  const Icon(Icons.medication, color: Colors.white, size: 18),
+                  const Icon(Icons.medication, color: Colors.white, size: 16),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             const Text('MedDispenser',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
           ],
         ),
         actions: [
+          // ETIQUETA ADMIN COMPACTA
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: _verdeLight,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: const Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.shield_outlined, color: _verde, size: 14),
+                Icon(Icons.shield_outlined, color: _verde, size: 12),
                 SizedBox(width: 4),
-                Text('Administrador',
+                Text('Admin',
                     style: TextStyle(
                         color: _verde,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600)),
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold)),
               ],
             ),
           ),
-          const SizedBox(width: 4),
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
+          const SizedBox(width: 6),
+          // AVATAR
+          Center(
             child: CircleAvatar(
-              radius: 16,
+              radius: 14,
               backgroundColor: _verdeLight,
               child: Text(
                 widget.sesion.nombre.isNotEmpty
                     ? widget.sesion.nombre[0].toUpperCase()
                     : 'A',
                 style: const TextStyle(
-                    color: _verde, fontWeight: FontWeight.bold, fontSize: 13),
+                    color: _verde, fontWeight: FontWeight.bold, fontSize: 11),
               ),
             ),
           ),
+          // BOTÓN LOGOUT
           IconButton(
-            icon: const Icon(Icons.logout_outlined, size: 20),
+            icon: const Icon(Icons.logout_outlined, size: 18),
             onPressed: _cerrarSesion,
             tooltip: 'Cerrar sesión',
           ),
@@ -108,34 +112,41 @@ class _DashboardAdminState extends State<DashboardAdmin> {
           _TabHorarios(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
-        backgroundColor: Colors.white,
-        indicatorColor: _verdeLight,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard, color: _verde),
-            label: 'Resumen',
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          labelTextStyle: WidgetStateProperty.all(
+            const TextStyle(fontSize: 11, overflow: TextOverflow.ellipsis),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people, color: _verde),
-            label: 'Usuarios',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.device_hub_outlined),
-            selectedIcon: Icon(Icons.device_hub, color: _verde),
-            label: 'Dispositivos',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.schedule_outlined),
-            selectedIcon: Icon(Icons.schedule, color: _verde),
-            label: 'Horarios',
-          ),
-        ],
+        ),
+        child: NavigationBar(
+          selectedIndex: _tab,
+          onDestinationSelected: (i) => setState(() => _tab = i),
+          backgroundColor: Colors.white,
+          indicatorColor: _verdeLight,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.dashboard_outlined),
+              selectedIcon: Icon(Icons.dashboard, color: _verde),
+              label: 'Resumen',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.people_outline),
+              selectedIcon: Icon(Icons.people, color: _verde),
+              label: 'Usuarios',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.device_hub_outlined),
+              selectedIcon: Icon(Icons.device_hub, color: _verde),
+              label: 'Dispositivos',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.schedule_outlined),
+              selectedIcon: Icon(Icons.schedule, color: _verde),
+              label: 'Horarios',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -156,12 +167,12 @@ class _TabResumen extends StatelessWidget {
         const Text('Panel general · hoy', style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 16),
 
-        // ── Métricas ──────────────────────────────────────────────────────
+        // GRID DE MÉTRICAS
         GridView.count(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: 1.6,
+          childAspectRatio: 1.35, // Proporción ideal para dar aire vertical
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: const [
@@ -176,7 +187,7 @@ class _TabResumen extends StatelessWidget {
                 icon: Icons.device_hub,
                 color: Color(0xFF2D7A4F)),
             _MetricCard(
-                label: 'Dosis dispensadas hoy',
+                label: 'Dosis dispensadas',
                 value: '127',
                 icon: Icons.medication_liquid,
                 color: Color(0xFFBA7517)),
@@ -190,7 +201,7 @@ class _TabResumen extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        // ── Alertas activas ────────────────────────────────────────────────
+        // SECCIÓN ALERTAS ACTIVAS
         const _SeccionTitulo('Alertas activas'),
         const SizedBox(height: 8),
         const _AlertaItem(
@@ -410,7 +421,7 @@ class _MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
@@ -418,14 +429,35 @@ class _MetricCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment
+            .spaceBetween, // Distribuye el espacio equitativamente arriba/abajo
         children: [
-          Icon(icon, color: color, size: 22),
-          const Spacer(),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.bold, color: color)),
-          Text(label,
-              style: TextStyle(fontSize: 11, color: color.withOpacity(0.8))),
+          Icon(icon, color: color, size: 20),
+          // Bloque contenedor de textos con espaciado controlado dinámico
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                    fontSize: 22, // Tamaño de fuente cómodo y legible
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    height: 1.1),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2), // Separación controlada
+              Text(
+                label,
+                style: TextStyle(
+                    fontSize: 11, color: color.withOpacity(0.85), height: 1.1),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -490,7 +522,8 @@ class _PacienteCard extends StatelessWidget {
             style: TextStyle(color: _color, fontWeight: FontWeight.bold),
           ),
         ),
-        title: Text(datos['nombre']),
+        title:
+            Text(datos['nombre'], overflow: TextOverflow.ellipsis, maxLines: 1),
         subtitle: Text(datos['dispositivo'] != null
             ? 'Dispositivo ${datos['dispositivo']}'
             : 'Sin dispositivo asignado'),
@@ -502,7 +535,7 @@ class _PacienteCard extends StatelessWidget {
                       style: TextStyle(
                           color: _color,
                           fontWeight: FontWeight.bold,
-                          fontSize: 16)),
+                          fontSize: 15)),
                   Text('adherencia',
                       style: TextStyle(color: Colors.grey[500], fontSize: 10)),
                 ],
@@ -546,9 +579,15 @@ class _DispositivoCard extends StatelessWidget {
               children: [
                 const Icon(Icons.device_hub, size: 18),
                 const SizedBox(width: 6),
-                Text('Dispositivo $id · $paciente',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                const Spacer(),
+                Expanded(
+                  child: Text(
+                    'Dispositivo $id · $paciente',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Icon(Icons.circle,
                     size: 10,
                     color: conectado ? const Color(0xFF2D7A4F) : Colors.grey),
@@ -601,6 +640,7 @@ class _DispositivoCard extends StatelessWidget {
                             style:
                                 TextStyle(fontSize: 9, color: Colors.grey[500]),
                             overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                             textAlign: TextAlign.center),
                       ],
                     ),

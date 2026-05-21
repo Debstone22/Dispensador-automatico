@@ -45,6 +45,7 @@ class _PanelConexionesState extends State<PanelConexiones> {
                 sexo: widget.sexoUsuario,
                 correo: widget.correoUsuario,
                 rol: widget.rolUsuario,
+                pacienteId: '',
               ),
               const SizedBox(height: 30),
               Container(
@@ -79,8 +80,8 @@ class _PanelConexionesState extends State<PanelConexiones> {
                       ],
                     ),
                     const SizedBox(height: 30),
-                    _buildStatusItem(
-                        Icons.developer_board, "Arduino Uno", "Conectado", true),
+                    _buildStatusItem(Icons.developer_board, "Arduino Uno",
+                        "Conectado", true),
                     _buildStatusItem(
                         Icons.wifi, "Modulo WiFi (ESP)", "MiRedCasa", true),
                     _buildStatusItem(Icons.settings_applications,
@@ -90,8 +91,8 @@ class _PanelConexionesState extends State<PanelConexiones> {
                     _buildStatusItem(
                         Icons.volume_up, "Buzzer de Alarma", "Operativo", true),
                     const Divider(height: 30, color: Colors.black12),
-                    _buildStatusItem(
-                        Icons.history, "Ultimo reporte", "Hace 2 minutos", false),
+                    _buildStatusItem(Icons.history, "Ultimo reporte",
+                        "Hace 2 minutos", false),
                     const SizedBox(height: 25),
                     SizedBox(
                       width: double.infinity,
