@@ -115,7 +115,6 @@ class _PantallaLoginState extends State<PantallaLogin> {
   bool _isLoading = false;
   final AuthService _authService = AuthService();
 
-
   Future<void> _iniciarSesion() async {
     String inputUsuario = _usuarioController.text.trim();
     String inputPassword = _passController.text.trim();

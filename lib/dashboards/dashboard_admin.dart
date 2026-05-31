@@ -172,7 +172,7 @@ class _TabResumen extends StatelessWidget {
           crossAxisCount: 2,
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: 1.35, // Proporción ideal para dar aire vertical
+          childAspectRatio: 1.35,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: const [
@@ -429,11 +429,9 @@ class _MetricCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment
-            .spaceBetween, // Distribuye el espacio equitativamente arriba/abajo
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Icon(icon, color: color, size: 20),
-          // Bloque contenedor de textos con espaciado controlado dinámico
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -441,14 +439,14 @@ class _MetricCard extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
-                    fontSize: 22, // Tamaño de fuente cómodo y legible
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: color,
                     height: 1.1),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 2), // Separación controlada
+              const SizedBox(height: 2),
               Text(
                 label,
                 style: TextStyle(
