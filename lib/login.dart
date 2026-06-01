@@ -305,6 +305,43 @@ class _PantallaLoginState extends State<PantallaLogin> {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text("Iniciar Sesion"),
                   ),
+                  const SizedBox(height: 15),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.g_mobiledata, size: 30),
+                    label: const Text("Continuar con Google"),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 55),
+                      backgroundColor: Colors.white,
+                    ),
+                    onPressed: () async {
+                      try {
+                        final sesion = await _authService.iniciarSesionGoogle();
+
+                        if (!mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Bienvenido ${sesion.nombre}'),
+                          ),
+                        );
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => buildHomeForRole(sesion),
+                          ),
+                        );
+                      } catch (e) {
+                        if (!mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error Google Sign-In: $e'),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                   const SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
