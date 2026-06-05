@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../auth_service.dart';
 import '../../login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // DASHBOARD ADMINISTRADOR
@@ -168,36 +169,56 @@ class _TabResumen extends StatelessWidget {
         const SizedBox(height: 16),
 
         // GRID DE MÉTRICAS
-        GridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 1.35,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: const [
-            _MetricCard(
-                label: 'Pacientes',
-                value: '48',
-                icon: Icons.person,
-                color: Color(0xFF185FA5)),
-            _MetricCard(
-                label: 'Dispositivos activos',
-                value: '31 / 35',
-                icon: Icons.device_hub,
-                color: Color(0xFF2D7A4F)),
-            _MetricCard(
-                label: 'Dosis dispensadas',
-                value: '127',
-                icon: Icons.medication_liquid,
-                color: Color(0xFFBA7517)),
-            _MetricCard(
-                label: 'Alertas pendientes',
-                value: '4',
-                icon: Icons.warning_amber,
-                color: Color(0xFFA32D2D)),
-          ],
+        StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance
+      .collection('usuario')
+      .where('rol_usuario', isEqualTo: 'paciente')
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    final totalPacientes = snapshot.data!.docs.length;
+
+    return GridView.count(
+      crossAxisCount: 2,
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+      childAspectRatio: 1.35,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        _MetricCard(
+          label: 'Pacientes',
+          value: totalPacientes.toString(),
+          icon: Icons.person,
+          color: const Color(0xFF185FA5),
         ),
+        _MetricCard(
+          label: 'Dispositivos activos',
+          value: '$totalPacientes / 35',
+          icon: Icons.device_hub,
+          color: const Color(0xFF2D7A4F),
+        ),
+        const _MetricCard(
+          label: 'Dosis dispensadas',
+          value: '127',
+          icon: Icons.medication_liquid,
+          color: Color(0xFFBA7517),
+        ),
+        const _MetricCard(
+          label: 'Alertas pendientes',
+          value: '4',
+          icon: Icons.warning_amber,
+          color: Color(0xFFA32D2D),
+        ),
+      ],
+    );
+  },
+),
 
         const SizedBox(height: 20),
 
@@ -229,89 +250,155 @@ class _TabResumen extends StatelessWidget {
   }
 }
 
-// ─── TAB 1: USUARIOS ──────────────────────────────────────────────────────────
+// ─── TAB 1: USUARIOS (CONECTADO A FIREBASE) ──────────────────────────────────
 class _TabUsuarios extends StatelessWidget {
-  final List<Map<String, dynamic>> _pacientes = const [
-    {
-      'nombre': 'Luis Pérez Ríos',
-      'dispositivo': '#07',
-      'adherencia': 94,
-      'estado': 'activo'
-    },
-    {
-      'nombre': 'Carlos Medina',
-      'dispositivo': '#12',
-      'adherencia': 71,
-      'estado': 'alerta'
-    },
-    {
-      'nombre': 'Rosa Torres Vega',
-      'dispositivo': '#03',
-      'adherencia': 43,
-      'estado': 'critico'
-    },
-    {
-      'nombre': 'María Gutiérrez',
-      'dispositivo': '#19',
-      'adherencia': 88,
-      'estado': 'activo'
-    },
-    {
-      'nombre': 'Jorge Castillo',
-      'dispositivo': null,
-      'adherencia': null,
-      'estado': 'sin dispositivo'
-    },
-  ];
+  const _TabUsuarios();
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const _SeccionTitulo('Gestión de usuarios'),
-        const SizedBox(height: 12),
-        ..._pacientes.map((p) => _PacienteCard(datos: p)),
-      ],
+    // Buscamos usuarios con rol 'familiar' (o el rol que uses para los que gestionan pacientes)
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('usuario')
+          .where('rol_usuario', isEqualTo: 'familiar') // Ajusta según tu base de datos
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text("No hay familiares registrados."));
+        }
+
+        final familiares = snapshot.data!.docs;
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: familiares.length,
+          itemBuilder: (context, index) {
+            final data = familiares[index].data() as Map<String, dynamic>;
+            final nombre = data['nombre_usuario'] ?? 'Sin nombre';
+            final email = data['correo_usuario'] ?? '';
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ExpansionTile(
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFF2D7A4F).withOpacity(0.1),
+                  child: Text(
+                    nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
+                    style: const TextStyle(color: Color(0xFF2D7A4F), fontWeight: FontWeight.bold),
+                  ),
+                ),
+                title: Text(nombre, style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(email, style: const TextStyle(fontSize: 12)),
+                children: [
+                  // Aquí se cargan dinámicamente los pacientes asociados a este email
+                  _ListaPacientesPorFamiliar(correoFamiliar: email),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
 
-// ─── TAB 2: DISPOSITIVOS ──────────────────────────────────────────────────────
+// Sub-widget para cargar los pacientes de un familiar específico
+class _ListaPacientesPorFamiliar extends StatelessWidget {
+  final String correoFamiliar;
+  const _ListaPacientesPorFamiliar({required this.correoFamiliar});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('pacientes')
+          .where('correo_familiar', isEqualTo: correoFamiliar)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: CircularProgressIndicator(strokeWidth: 2),
+          );
+        }
+        
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const ListTile(
+            title: Text("Sin pacientes registrados", style: TextStyle(fontSize: 13, color: Colors.grey)),
+          );
+        }
+
+        return Column(
+          children: snapshot.data!.docs.map((doc) {
+            final p = doc.data() as Map<String, dynamic>;
+            return ListTile(
+              dense: true,
+              leading: const Icon(Icons.person_pin, size: 20, color: Color(0xFF2D7A4F)),
+              title: Text('${p['nombre_paciente'] ?? ''} ${p['apellido_paciente'] ?? ''}'),
+              subtitle: Text('Sangre: ${p['tipo_sangre'] ?? 'N/A'}'),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+}
+
+// ─── TAB 2: DISPOSITIVOS (CONECTADO A PACIENTES Y PASTILLAS) ──────────────────
 class _TabDispositivos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: const [
-        _SeccionTitulo('Dispositivos y slots'),
-        SizedBox(height: 12),
-        _DispositivoCard(
-          id: '#07',
-          paciente: 'Luis Pérez',
-          conectado: true,
-          bateria: 88,
-          slots: [
-            {'nombre': 'Metformina', 'pct': 62},
-            {'nombre': 'Enalapril', 'pct': 8},
-            {'nombre': 'Losartán', 'pct': 78},
-            {'nombre': 'Aspirina', 'pct': 45},
-          ],
-        ),
-        SizedBox(height: 12),
-        _DispositivoCard(
-          id: '#12',
-          paciente: 'Carlos Medina',
-          conectado: true,
-          bateria: 55,
-          slots: [
-            {'nombre': 'Enalapril', 'pct': 55},
-            {'nombre': 'Amlodipino', 'pct': 22},
-            {'nombre': 'Atorvastatina', 'pct': 3},
-            {'nombre': '—', 'pct': 0},
-          ],
-        ),
-      ],
+    return StreamBuilder<QuerySnapshot>(
+      // 1. Obtenemos todos los pacientes
+      stream: FirebaseFirestore.instance.collection('pacientes').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        
+        final pacientes = snapshot.data!.docs;
+        if (pacientes.isEmpty) return const Center(child: Text("No hay pacientes."));
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: pacientes.length,
+          itemBuilder: (context, index) {
+            final pData = pacientes[index].data() as Map<String, dynamic>;
+            final pacienteId = pacientes[index].id;
+            final nombreCompleto = '${pData['nombre_paciente'] ?? ''} ${pData['apellido_paciente'] ?? ''}';
+
+            // 2. Por cada paciente, buscamos sus pastillas
+            return StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('pastillas')
+                  .where('paciente_id', isEqualTo: pacienteId)
+                  .snapshots(),
+              builder: (context, pillsSnapshot) {
+                // Preparamos los datos de slots/medicamentos
+                List<Map<String, dynamic>> slots = [];
+                if (pillsSnapshot.hasData) {
+                  slots = pillsSnapshot.data!.docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    return {
+                      'nombre': data['nombre_pastilla'] ?? '?',
+                      'pct': (data['cantidad_restante'] ?? 0) * 10, // Ejemplo: convertimos cantidad a % (ajusta a tu lógica)
+                    };
+                  }).toList();
+                }
+
+                return _DispositivoCard(
+                  id: '00', // Podrías agregar un campo 'dispositivo_id' en la colección pacientes
+                  paciente: nombreCompleto,
+                  conectado: true, 
+                  bateria: 100,
+                  slots: slots,
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }
