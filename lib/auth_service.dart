@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 /// Roles definidos en el sistema
 enum RolUsuario {
@@ -200,6 +201,118 @@ class AuthService {
       rol: _parsearRol(
         (data['rol_usuario'] ?? '').toLowerCase(),
       ),
+    );
+  }
+
+  Future<SesionUsuario> iniciarSesionFacebook() async {
+    try {
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: ['email', 'public_profile'],
+      );
+
+      if (result.status != LoginStatus.success) {
+        throw Exception("Login cancelado");
+      }
+
+      final credential = FacebookAuthProvider.credential(
+        result.accessToken!.tokenString,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+
+      final user = userCredential.user!;
+
+      final docRef = _db.collection('usuario').doc(user.uid);
+      final doc = await docRef.get();
+
+      if (!doc.exists) {
+        await docRef.set({
+          'nombre_usuario': user.displayName ?? 'Usuario Facebook',
+          'correo_usuario': user.email ?? '',
+          'rol_usuario': 'paciente',
+          'sexo_usuario': 'H',
+          'creado_en': FieldValue.serverTimestamp(),
+        });
+      }
+
+      final nuevoDoc = await docRef.get();
+      final data = nuevoDoc.data()!;
+
+      return SesionUsuario(
+        uid: user.uid,
+        email: user.email ?? '',
+        nombre: data['nombre_usuario'] ?? 'Usuario',
+        sexo: data['sexo_usuario'] ?? 'H',
+        rol: _parsearRol((data['rol_usuario'] ?? '').toLowerCase()),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'account-exists-with-different-credential') {
+        throw Exception(
+            "Este correo ya está registrado con otro método (Google o Email).");
+      }
+      rethrow;
+    }
+  }
+
+  Future<SesionUsuario> _handleAccountLinking(
+    FirebaseAuthException e,
+  ) async {
+    final email = e.email;
+    final pendingCred = e.credential;
+
+    if (email == null || pendingCred == null) {
+      throw Exception("No se pudo vincular la cuenta");
+    }
+
+    final methods = await _auth.fetchSignInMethodsForEmail(email);
+
+    UserCredential userCredential;
+
+    if (methods.contains('google.com')) {
+      final googleUser = await GoogleSignIn().signIn();
+
+      if (googleUser == null) {
+        throw Exception("Google cancelado");
+      }
+
+      final googleAuth = await googleUser.authentication;
+
+      final googleCred = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+      );
+
+      userCredential = await _auth.signInWithCredential(googleCred);
+    } else {
+      throw Exception(
+        "Debes iniciar sesión con el método original (Google o Email)",
+      );
+    }
+
+    await userCredential.user!.linkWithCredential(pendingCred);
+
+    final user = userCredential.user!;
+    final docRef = _db.collection('usuario').doc(user.uid);
+    final doc = await docRef.get();
+
+    if (!doc.exists) {
+      await docRef.set({
+        'nombre_usuario': user.displayName ?? 'Usuario',
+        'correo_usuario': user.email ?? '',
+        'rol_usuario': 'paciente',
+        'sexo_usuario': 'H',
+        'creado_en': FieldValue.serverTimestamp(),
+      });
+    }
+
+    final data = (await docRef.get()).data()!;
+
+    return SesionUsuario(
+      uid: user.uid,
+      email: user.email ?? '',
+      nombre: data['nombre_usuario'] ?? 'Usuario',
+      sexo: data['sexo_usuario'] ?? 'H',
+      rol: _parsearRol((data['rol_usuario'] ?? '').toLowerCase()),
     );
   }
 }

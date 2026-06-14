@@ -3,6 +3,7 @@ import 'dart:async';
 import 'auth_service.dart';
 import 'registro.dart';
 import 'role_router.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class BannerAnimado extends StatefulWidget {
   const BannerAnimado({super.key});
@@ -341,6 +342,54 @@ class _PantallaLoginState extends State<PantallaLogin> {
                         );
                       }
                     },
+                  ),
+                  const SizedBox(height: 15),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      setState(() {
+                        _isLoading = true;
+                      });
+
+                      try {
+                        final sesion =
+                            await _authService.iniciarSesionFacebook();
+
+                        if (!mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('Bienvenido ${sesion.nombre}')),
+                        );
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => buildHomeForRole(sesion),
+                          ),
+                        );
+                      } catch (e) {
+                        if (!mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error Facebook Sign-In: $e'),
+                          ),
+                        );
+                      } finally {
+                        if (mounted) {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1877F2),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 55),
+                    ),
+                    icon: const Icon(Icons.facebook),
+                    label: const Text("Continuar con Facebook"),
                   ),
                   const SizedBox(height: 20),
                   TextButton(
