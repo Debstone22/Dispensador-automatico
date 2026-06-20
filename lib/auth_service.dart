@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-/// Roles definidos en el sistema
 enum RolUsuario {
   administrador,
   monitor,
@@ -12,7 +11,6 @@ enum RolUsuario {
   desconocido,
 }
 
-/// Modelo que devuelve el login: uid + rol resuelto
 class SesionUsuario {
   final String uid;
   final String email;
@@ -33,7 +31,6 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // ─── LOGIN CON EMAIL Y CONTRASEÑA ──────────────────────────────────────────
   Future<SesionUsuario> iniciarSesion(String email, String password) async {
     final credential = await _auth.signInWithEmailAndPassword(
       email: email.trim(),
@@ -50,7 +47,6 @@ class AuthService {
 
     final data = doc.data()!;
 
-    // CAMBIO AQUÍ: Usamos los nombres de tu captura de pantalla
     final rolString = (data['rol_usuario'] as String? ?? '').toLowerCase();
     final nombre = data['nombre_usuario'] as String? ?? 'Usuario';
     final sexo = data['sexo_usuario'] as String? ?? 'H';
@@ -64,12 +60,10 @@ class AuthService {
     );
   }
 
-  // ─── CERRAR SESIÓN ─────────────────────────────────────────────────────────
   Future<void> cerrarSesion() async {
     await _auth.signOut();
   }
 
-  // ─── RECUPERAR CONTRASENA ────────────────────────────────────────────────
   Future<void> recuperarContrasena(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email.trim());
@@ -78,7 +72,6 @@ class AuthService {
     }
   }
 
-  // ─── CAMBIAR CONTRASENA EN SeSION ────────────────────────────────────────
   Future<void> cambiarContrasena(String nuevaContrasena) async {
     final user = _auth.currentUser;
     if (user == null) {
@@ -92,7 +85,6 @@ class AuthService {
     }
   }
 
-  // ─── SESIÓN ACTIVA AL ABR
   Future<SesionUsuario?> obtenerSesionActual() async {
     final user = _auth.currentUser;
     if (user == null) return null;
@@ -110,7 +102,6 @@ class AuthService {
     );
   }
 
-  // ─── HELPER ───────────────────────────────────────────────────────────────
   RolUsuario _parsearRol(String rol) {
     switch (rol) {
       case 'administrador':
@@ -129,7 +120,6 @@ class AuthService {
     }
   }
 
-  // ─── REGISTRO CON SCRYPT ────────────────────────
   Future<void> registrarUsuarioConScrypt({
     required String email,
     required String password,

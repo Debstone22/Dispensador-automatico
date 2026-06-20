@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import '../auth_service.dart';
 import '../login.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// DASHBOARD ESPECIALISTA EN MONITOREO
-// ══════════════════════════════════════════════════════════════════════════════
+
 
 class DashboardMonitor extends StatefulWidget {
   final SesionUsuario sesion;
@@ -117,7 +115,6 @@ class _DashboardMonitorState extends State<DashboardMonitor> {
   }
 }
 
-// ─── TAB 0: BUSCADOR DE PACIENTES ─────────────────────────────────────────────
 class _TabPacientes extends StatefulWidget {
   @override
   State<_TabPacientes> createState() => _TabPacientesState();
@@ -194,7 +191,6 @@ class _TabPacientesState extends State<_TabPacientes> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ── Barra de búsqueda ────────────────────────────────────────────
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: TextField(
@@ -210,7 +206,6 @@ class _TabPacientesState extends State<_TabPacientes> {
           ),
         ),
 
-        // ── Chips de filtro ───────────────────────────────────────────────
         SizedBox(
           height: 38,
           child: ListView(
@@ -242,7 +237,6 @@ class _TabPacientesState extends State<_TabPacientes> {
 
         const SizedBox(height: 8),
 
-        // ── Lista de pacientes ────────────────────────────────────────────
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -258,7 +252,7 @@ class _TabPacientesState extends State<_TabPacientes> {
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   leading: CircleAvatar(
-                    backgroundColor: color.withOpacity(0.12),
+                    backgroundColor: color.withValues(alpha: 0.12),
                     child: Text(
                       (p['nombre'] as String).substring(0, 2).toUpperCase(),
                       style:
@@ -272,7 +266,7 @@ class _TabPacientesState extends State<_TabPacientes> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
+                          color: color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -327,7 +321,6 @@ class _TabPacientesState extends State<_TabPacientes> {
   }
 }
 
-// ─── TAB 1: CONSUMO Y GRÁFICAS ────────────────────────────────────────────────
 class _TabConsumo extends StatelessWidget {
   final List<Map<String, dynamic>> _pastillas = const [
     {'nombre': 'Metformina', 'dosis': 312},
@@ -353,7 +346,6 @@ class _TabConsumo extends StatelessWidget {
             style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 16),
 
-        // ── Gráfica de barras horizontales ────────────────────────────────
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -403,7 +395,6 @@ class _TabConsumo extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        // ── Alertas de stock ───────────────────────────────────────────────
         const Text('Alertas de stock',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
@@ -451,7 +442,7 @@ class _StockAlerta extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

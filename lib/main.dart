@@ -10,13 +10,10 @@ import 'dashboards/dashboard_callcenter.dart';
 import 'dashboards/dashboard_monitor.dart';
 
 Future<void> main() async {
-  // 1. Garantiza que los servicios de Flutter estén listos
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Inicializa Firebase con las opciones de tu proyecto
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // 3. Arranca la interfaz
   runApp(const MiAppSalud());
 }
 

@@ -113,7 +113,7 @@ class _PantallaConfiguracionSlotsState extends State<PantallaConfiguracionSlots>
                 if (!snapshot.hasData) return const LinearProgressIndicator();
                 return DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: "Selecciona al paciente", border: OutlineInputBorder(), filled: true, fillColor: Colors.white),
-                  value: _pacienteSeleccionadoId,
+                  initialValue: _pacienteSeleccionadoId,
                   items: snapshot.data!.docs.map((doc) => DropdownMenuItem(value: doc.id, child: Text(doc['nombre_paciente'] ?? 'Sin nombre'))).toList(),
                   onChanged: (val) => setState(() => _pacienteSeleccionadoId = val),
                 );

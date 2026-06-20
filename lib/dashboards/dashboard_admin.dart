@@ -3,11 +3,6 @@ import '../../auth_service.dart';
 import '../../login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// DASHBOARD ADMINISTRADOR
-// Todas las funciones disponibles: usuarios, dispositivos, horarios, alertas
-// ══════════════════════════════════════════════════════════════════════════════
-
 class DashboardAdmin extends StatefulWidget {
   final SesionUsuario sesion;
   const DashboardAdmin({super.key, required this.sesion});
@@ -60,7 +55,6 @@ class _DashboardAdminState extends State<DashboardAdmin> {
           ],
         ),
         actions: [
-          // ETIQUETA ADMIN COMPACTA
           Container(
             margin: const EdgeInsets.symmetric(vertical: 12),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -96,7 +90,6 @@ class _DashboardAdminState extends State<DashboardAdmin> {
               ),
             ),
           ),
-          // BOTÓN LOGOUT
           IconButton(
             icon: const Icon(Icons.logout_outlined, size: 18),
             onPressed: _cerrarSesion,
@@ -108,7 +101,7 @@ class _DashboardAdminState extends State<DashboardAdmin> {
         index: _tab,
         children: [
           _TabResumen(sesion: widget.sesion),
-          _TabUsuarios(),
+          const _TabUsuarios(),
           _TabDispositivos(),
           _TabHorarios(),
         ],
@@ -153,7 +146,6 @@ class _DashboardAdminState extends State<DashboardAdmin> {
   }
 }
 
-// ─── TAB 0: RESUMEN ───────────────────────────────────────────────────────────
 class _TabResumen extends StatelessWidget {
   final SesionUsuario sesion;
   const _TabResumen({required this.sesion});
@@ -222,7 +214,6 @@ class _TabResumen extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        // SECCIÓN ALERTAS ACTIVAS
         const _SeccionTitulo('Alertas activas'),
         const SizedBox(height: 8),
         const _AlertaItem(
@@ -250,17 +241,16 @@ class _TabResumen extends StatelessWidget {
   }
 }
 
-// ─── TAB 1: USUARIOS (CONECTADO A FIREBASE) ──────────────────────────────────
 class _TabUsuarios extends StatelessWidget {
   const _TabUsuarios();
 
   @override
   Widget build(BuildContext context) {
-    // Buscamos usuarios con rol 'familiar' (o el rol que uses para los que gestionan pacientes)
+    
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('usuario')
-          .where('rol_usuario', isEqualTo: 'familiar') // Ajusta según tu base de datos
+          .where('rol_usuario', isEqualTo: 'familiar') 
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -284,7 +274,7 @@ class _TabUsuarios extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 12),
               child: ExpansionTile(
                 leading: CircleAvatar(
-                  backgroundColor: const Color(0xFF2D7A4F).withOpacity(0.1),
+                  backgroundColor: const Color(0xFF2D7A4F).withValues(alpha: 0.1),
                   child: Text(
                     nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
                     style: const TextStyle(color: Color(0xFF2D7A4F), fontWeight: FontWeight.bold),
@@ -293,7 +283,6 @@ class _TabUsuarios extends StatelessWidget {
                 title: Text(nombre, style: const TextStyle(fontWeight: FontWeight.w600)),
                 subtitle: Text(email, style: const TextStyle(fontSize: 12)),
                 children: [
-                  // Aquí se cargan dinámicamente los pacientes asociados a este email
                   _ListaPacientesPorFamiliar(correoFamiliar: email),
                 ],
               ),
@@ -305,7 +294,6 @@ class _TabUsuarios extends StatelessWidget {
   }
 }
 
-// Sub-widget para cargar los pacientes de un familiar específico
 class _ListaPacientesPorFamiliar extends StatelessWidget {
   final String correoFamiliar;
   const _ListaPacientesPorFamiliar({required this.correoFamiliar});
@@ -347,12 +335,10 @@ class _ListaPacientesPorFamiliar extends StatelessWidget {
   }
 }
 
-// ─── TAB 2: DISPOSITIVOS (CONECTADO A PACIENTES Y PASTILLAS) ──────────────────
 class _TabDispositivos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      // 1. Obtenemos todos los pacientes
       stream: FirebaseFirestore.instance.collection('pacientes').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
@@ -368,27 +354,25 @@ class _TabDispositivos extends StatelessWidget {
             final pacienteId = pacientes[index].id;
             final nombreCompleto = '${pData['nombre_paciente'] ?? ''} ${pData['apellido_paciente'] ?? ''}';
 
-            // 2. Por cada paciente, buscamos sus pastillas
             return StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('pastillas')
                   .where('paciente_id', isEqualTo: pacienteId)
                   .snapshots(),
               builder: (context, pillsSnapshot) {
-                // Preparamos los datos de slots/medicamentos
                 List<Map<String, dynamic>> slots = [];
                 if (pillsSnapshot.hasData) {
                   slots = pillsSnapshot.data!.docs.map((doc) {
                     final data = doc.data() as Map<String, dynamic>;
                     return {
                       'nombre': data['nombre_pastilla'] ?? '?',
-                      'pct': (data['cantidad_restante'] ?? 0) * 10, // Ejemplo: convertimos cantidad a % (ajusta a tu lógica)
+                      'pct': (data['cantidad_restante'] ?? 0) * 10, 
                     };
                   }).toList();
                 }
 
                 return _DispositivoCard(
-                  id: '00', // Podrías agregar un campo 'dispositivo_id' en la colección pacientes
+                  id: '00', 
                   paciente: nombreCompleto,
                   conectado: true, 
                   bateria: 100,
@@ -403,7 +387,6 @@ class _TabDispositivos extends StatelessWidget {
   }
 }
 
-// ─── TAB 3: HORARIOS ──────────────────────────────────────────────────────────
 class _TabHorarios extends StatefulWidget {
   @override
   State<_TabHorarios> createState() => _TabHorariosState();
@@ -470,7 +453,7 @@ class _TabHorariosState extends State<_TabHorarios> {
                   style: const TextStyle(fontSize: 12)),
               trailing: Switch(
                 value: h['activo'],
-                activeColor: const Color(0xFF2D7A4F),
+                activeThumbColor: const Color(0xFF2D7A4F),
                 onChanged: (val) =>
                     setState(() => _horarios[e.key]['activo'] = val),
               ),
@@ -482,9 +465,6 @@ class _TabHorariosState extends State<_TabHorarios> {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// WIDGETS COMPARTIDOS
-// ══════════════════════════════════════════════════════════════════════════════
 
 class _SeccionTitulo extends StatelessWidget {
   final String texto;
@@ -510,9 +490,9 @@ class _MetricCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.15)),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -537,7 +517,7 @@ class _MetricCard extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                    fontSize: 11, color: color.withOpacity(0.85), height: 1.1),
+                    fontSize: 11, color: color.withValues(alpha: 0.85), height: 1.1),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -567,7 +547,7 @@ class _AlertaItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -601,7 +581,7 @@ class _PacienteCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: _color.withOpacity(0.15),
+          backgroundColor: _color.withValues(alpha: 0.15),
           child: Text(
             (datos['nombre'] as String).substring(0, 2).toUpperCase(),
             style: TextStyle(color: _color, fontWeight: FontWeight.bold),

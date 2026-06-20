@@ -47,14 +47,13 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
               ),
               const SizedBox(height: 20),
 
-              // Selector de Paciente (Reemplaza el botón de "Ver detalles")
               StreamBuilder<QuerySnapshot>(
                 stream: _firestore.collection('pacientes').where('correo_familiar', isEqualTo: widget.correoUsuario.trim()).snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) return const LinearProgressIndicator();
                   return DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: "Seleccionar Paciente", border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(15))), filled: true, fillColor: Colors.white),
-                    value: _pacienteSeleccionadoId,
+                    initialValue: _pacienteSeleccionadoId,
                     hint: const Text("Selecciona un paciente para ver sus datos"),
                     items: snapshot.data!.docs.map((doc) => DropdownMenuItem(
                       value: doc.id, 
@@ -69,7 +68,6 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
               const Text("Capacidad de tus pastillas", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
               const SizedBox(height: 15),
 
-              // Contenedor principal de capacidades
               Container(
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
                 padding: const EdgeInsets.all(24),
