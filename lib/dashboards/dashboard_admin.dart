@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import '../../auth_service.dart';
 import '../../login.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// DASHBOARD ADMINISTRADOR
-// Todas las funciones disponibles: usuarios, dispositivos, horarios, alertas
-// ══════════════════════════════════════════════════════════════════════════════
+
 
 class DashboardAdmin extends StatefulWidget {
   final SesionUsuario sesion;
@@ -152,7 +149,7 @@ class _DashboardAdminState extends State<DashboardAdmin> {
   }
 }
 
-// ─── TAB 0: RESUMEN ───────────────────────────────────────────────────────────
+
 class _TabResumen extends StatelessWidget {
   final SesionUsuario sesion;
   const _TabResumen({required this.sesion});
@@ -167,7 +164,6 @@ class _TabResumen extends StatelessWidget {
         const Text('Panel general · hoy', style: TextStyle(color: Colors.grey)),
         const SizedBox(height: 16),
 
-        // GRID DE MÉTRICAS
         GridView.count(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
@@ -201,7 +197,6 @@ class _TabResumen extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        // SECCIÓN ALERTAS ACTIVAS
         const _SeccionTitulo('Alertas activas'),
         const SizedBox(height: 8),
         const _AlertaItem(
@@ -229,7 +224,6 @@ class _TabResumen extends StatelessWidget {
   }
 }
 
-// ─── TAB 1: USUARIOS ──────────────────────────────────────────────────────────
 class _TabUsuarios extends StatelessWidget {
   final List<Map<String, dynamic>> _pacientes = const [
     {
@@ -277,7 +271,6 @@ class _TabUsuarios extends StatelessWidget {
   }
 }
 
-// ─── TAB 2: DISPOSITIVOS ──────────────────────────────────────────────────────
 class _TabDispositivos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -316,7 +309,6 @@ class _TabDispositivos extends StatelessWidget {
   }
 }
 
-// ─── TAB 3: HORARIOS ──────────────────────────────────────────────────────────
 class _TabHorarios extends StatefulWidget {
   @override
   State<_TabHorarios> createState() => _TabHorariosState();
@@ -395,9 +387,6 @@ class _TabHorariosState extends State<_TabHorarios> {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// WIDGETS COMPARTIDOS
-// ══════════════════════════════════════════════════════════════════════════════
 
 class _SeccionTitulo extends StatelessWidget {
   final String texto;

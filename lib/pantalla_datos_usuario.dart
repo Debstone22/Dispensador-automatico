@@ -28,19 +28,17 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
 
   bool _mostrarTodosLosPacientes = false;
 
-  // Controladores para Editar Datos de la Cuenta de Usuario
   final _nombreUserCtrl = TextEditingController();
   final _apellidoUserCtrl = TextEditingController();
   final _telefonoUserCtrl = TextEditingController();
   final _edadUserCtrl = TextEditingController();
 
-  // Controladores para Editar Datos del Paciente
   final _nombreEditCtrl = TextEditingController();
   final _apellidoEditCtrl = TextEditingController();
   final _telefonoEditCtrl = TextEditingController();
   final _edadEditCtrl = TextEditingController();
 
-  // Controladores para Añadir un Nuevo Paciente
+
   final _nombreNuevoCtrl = TextEditingController();
   final _apellidoNuevoCtrl = TextEditingController();
   final _telefonoNuevoCtrl = TextEditingController();
@@ -67,7 +65,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
     super.dispose();
   }
 
-  // 👤 DIÁLOGO: EDITAR DATOS DE LA CUENTA
   void _mostrarDialogoEditarCuenta() {
     _nombreUserCtrl.text = widget.nombreUsuario;
     _apellidoUserCtrl.text = '';
@@ -144,7 +141,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
     );
   }
 
-  // 📝 DIÁLOGO: EDITAR DATOS DEL PACIENTE
   void _mostrarDialogoEditarPaciente(
       Map<String, dynamic> datos, String idValido) {
     _nombreEditCtrl.text = datos['nombre_paciente'] ?? '';
@@ -214,7 +210,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
     );
   }
 
-  // 🗑️ DIÁLOGO: CONFIRMACIÓN PARA ELIMINAR PACIENTE
   void _confirmarEliminarPaciente(String idValido, String nombre) {
     showDialog(
       context: context,
@@ -255,7 +250,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
     );
   }
 
-  // ➕ DIÁLOGO: AÑADIR PACIENTE
   void _mostrarDialogoAnadir() {
     _nombreNuevoCtrl.clear();
     _apellidoNuevoCtrl.clear();
@@ -340,7 +334,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
     );
   }
 
-  // Elemento seguro contra textos largos (como correos)
   Widget _buildPerfilItem(IconData icon, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
@@ -383,7 +376,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  // Asegura que el nombre largo no empuje los botones de editar/borrar
                   child: Text(
                     '${datosPaciente['nombre_paciente'] ?? ''} ${datosPaciente['apellido_paciente'] ?? ''}'
                         .toUpperCase(),
@@ -448,7 +440,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Encabezado del Perfil Verde
             Container(
               width: double.infinity,
               color: const Color(0xFF2D7A4F),
@@ -486,7 +477,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // 👤 CUADRO 1: DATOS DEL USUARIO EN SESIÓN
                   Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
@@ -526,12 +516,10 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                   ),
                   const SizedBox(height: 16),
 
-                  // 🏥 CUADRO 2: SECCIÓN DE PACIENTES ASIGNADOS (CORREGIDO HORIZONTALMENTE)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Expanded(
-                        // 🌟 SOLUCIÓN AL OVERFLOW DE 43 PIXELS: Obliga al texto a respetar el espacio del botón
                         child: Padding(
                           padding:
                               EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -637,7 +625,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                     },
                   ),
 
-                  // 🔐 SECCIÓN INFERIOR
                   if (widget.rolUsuario.trim().toLowerCase() == 'familiar') ...[
                     const SizedBox(height: 8),
                     OutlinedButton.icon(

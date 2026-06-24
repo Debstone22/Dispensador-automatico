@@ -3,9 +3,6 @@ import 'dart:async';
 import '../../auth_service.dart';
 import '../../login.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// DASHBOARD CALL CENTER — Atención médica por llamada
-// ══════════════════════════════════════════════════════════════════════════════
 
 class DashboardCallCenter extends StatefulWidget {
   final SesionUsuario sesion;
@@ -129,7 +126,6 @@ class _DashboardCallCenterState extends State<DashboardCallCenter> {
   }
 }
 
-// ─── TAB 0: LISTA DE LLAMADAS PENDIENTES ─────────────────────────────────────
 class _TabLlamadas extends StatelessWidget {
   final void Function(Map<String, dynamic>) onLlamar;
   const _TabLlamadas({required this.onLlamar});
@@ -207,7 +203,6 @@ class _TabLlamadas extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ── Métricas rápidas ──────────────────────────────────────────────
         const Padding(
           padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Row(
@@ -233,7 +228,6 @@ class _TabLlamadas extends StatelessWidget {
           ),
         ),
 
-        // ── Lista de pacientes ────────────────────────────────────────────
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -332,7 +326,6 @@ class _TabLlamadas extends StatelessWidget {
   }
 }
 
-// ─── TAB 1: HISTORIAL ─────────────────────────────────────────────────────────
 class _TabHistorial extends StatelessWidget {
   final _historial = const [
     {
@@ -424,7 +417,6 @@ class _TabHistorial extends StatelessWidget {
   }
 }
 
-// ─── WIDGET MINI MÉTRICA ──────────────────────────────────────────────────────
 class _MiniMetric extends StatelessWidget {
   final String label;
   final String value;
@@ -458,9 +450,6 @@ class _MiniMetric extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// PANTALLA DE LLAMADA EN CURSO (BottomSheet)
-// ══════════════════════════════════════════════════════════════════════════════
 
 class _PantallaLlamada extends StatefulWidget {
   final Map<String, dynamic> paciente;
@@ -567,7 +556,6 @@ class _PantallaLlamadaState extends State<_PantallaLlamada> {
 
           const SizedBox(height: 32),
 
-          // Motivo de la llamada
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 32),
             padding: const EdgeInsets.all(12),
@@ -591,7 +579,7 @@ class _PantallaLlamadaState extends State<_PantallaLlamada> {
 
           const SizedBox(height: 32),
 
-          // Botones de acción
+          
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

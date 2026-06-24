@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Listas globales auxiliares
 List<String> nombresPastillasGlobal = [];
+List<Map<String, dynamic>> slotsGlobal = [];
 
-// Instancia de conexión segura
-FirebaseFirestore get firestoreInstance => FirebaseFirestore.instance;
+final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;

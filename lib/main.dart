@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'firebase_options.dart';
-import 'auth_service.dart';
+import 'package:firebase_core/firebase_core.dart'; 
+import 'firebase_options.dart'; 
 import 'login.dart';
-import 'role_router.dart';
 
 Future<void> main() async {
-  // 1. Garantiza que los servicios de Flutter estén listos
+  
   WidgetsFlutterBinding.ensureInitialized();
-
-  // 2. Inicializa Firebase con las opciones de tu proyecto
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // 3. Arranca la interfaz
   runApp(const MiAppSalud());
 }
 
@@ -29,47 +22,7 @@ class MiAppSalud extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4CAF50)),
       ),
-      home: const AuthGate(),
-    );
-  }
-}
-
-class AuthGate extends StatelessWidget {
-  const AuthGate({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (!snapshot.hasData) {
-          return const PantallaLogin();
-        }
-
-        return FutureBuilder<SesionUsuario?>(
-          future: AuthService().obtenerSesionActual(),
-          builder: (context, sesionSnapshot) {
-            if (sesionSnapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-
-            final sesion = sesionSnapshot.data;
-            if (sesion == null) {
-              return const PantallaLogin();
-            }
-
-            return buildHomeForRole(sesion);
-          },
-        );
-      },
+      home: const PantallaLogin(),
     );
   }
 }

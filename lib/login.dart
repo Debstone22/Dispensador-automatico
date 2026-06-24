@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'registro.dart';
-import 'role_router.dart';
+import 'pantalla_principal.dart';
 
 class BannerAnimado extends StatefulWidget {
   const BannerAnimado({super.key});
@@ -87,7 +87,7 @@ class _BannerAnimadoState extends State<BannerAnimado> {
                   ),
                 ),
                 Text(
-                  "Tu dispensador automatico en casa",
+                  "Tu dispensador automático en casa",
                   style: TextStyle(
                     color: Color.fromARGB(179, 41, 110, 49),
                     fontSize: 14,
@@ -113,8 +113,6 @@ class _PantallaLoginState extends State<PantallaLogin> {
   final TextEditingController _passController = TextEditingController();
   bool _isObscure = true;
   bool _isLoading = false;
-  final AuthService _authService = AuthService();
-
 
   Future<void> _iniciarSesion() async {
     String inputUsuario = _usuarioController.text.trim();
@@ -132,94 +130,55 @@ class _PantallaLoginState extends State<PantallaLogin> {
     });
 
     try {
-      final sesion = await _authService.iniciarSesion(
-        inputUsuario,
-        inputPassword,
-      );
+      final QuerySnapshot resultado = await FirebaseFirestore.instance
+          .collection('usuario')
+          .where('correo_usuario', isEqualTo: inputUsuario)
+          .get();
 
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Bienvenido ${sesion.nombre}')),
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => buildHomeForRole(sesion),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al iniciar sesion: $e')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _mostrarRecuperacion() async {
-    final TextEditingController emailController = TextEditingController(
-      text: _usuarioController.text.trim(),
-    );
-
-    await showDialog<void>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Recuperar contrasena'),
-          content: TextField(
-            controller: emailController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'Correo',
-              hintText: 'tucorreo@ejemplo.com',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final email = emailController.text.trim();
-                if (email.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Ingresa tu correo.')),
-                  );
-                  return;
-                }
-
-                try {
-                  await _authService.recuperarContrasena(email);
-                  if (!mounted) return;
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Revisa tu correo para restablecer la contrasena.',
-                      ),
-                    ),
-                  );
-                } catch (e) {
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al enviar correo: $e')),
-                  );
-                }
-              },
-              child: const Text('Enviar'),
-            ),
-          ],
+      if (resultado.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El usuario o correo no existe')),
         );
-      },
-    );
+      } else {
+        final datosUsuario =
+            resultado.docs.first.data() as Map<String, dynamic>;
+        String passwordCorrecta = datosUsuario['contraseña_usuario'] ?? '';
+
+        if (passwordCorrecta == inputPassword) {
+          String nombreReal = datosUsuario['nombre_usuario'] ?? 'Usuario';
+          String sexoReal = datosUsuario['sexo_usuario'] ?? 'H';
+
+          String correoReal = datosUsuario['correo_usuario'] ?? inputUsuario;
+          String rolReal = datosUsuario['rol_usuario'] ?? 'Paciente';
+
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PantallaPrincipal(
+                  nombreUsuario: nombreReal,
+                  sexoUsuario: sexoReal,
+                  correoUsuario: correoReal,
+                  rolUsuario: rolReal,
+                ),
+              ),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Contraseña incorrecta')),
+          );
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al conectar: $e')),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -271,7 +230,7 @@ class _PantallaLoginState extends State<PantallaLogin> {
                           controller: _passController,
                           obscureText: _isObscure,
                           decoration: InputDecoration(
-                            labelText: "Contrasena",
+                            labelText: "Contraseña",
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
                               icon: Icon(
@@ -282,13 +241,6 @@ class _PantallaLoginState extends State<PantallaLogin> {
                               onPressed: () =>
                                   setState(() => _isObscure = !_isObscure),
                             ),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: _mostrarRecuperacion,
-                            child: const Text('Olvide mi clave'),
                           ),
                         ),
                       ],
@@ -304,7 +256,7 @@ class _PantallaLoginState extends State<PantallaLogin> {
                     ),
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text("Iniciar Sesion"),
+                        : const Text("Iniciar Sesión"),
                   ),
                   const SizedBox(height: 20),
                   TextButton(
@@ -317,7 +269,7 @@ class _PantallaLoginState extends State<PantallaLogin> {
                       );
                     },
                     child: const Text(
-                      "No tienes cuenta? Registrate aqui",
+                      "¿No tienes cuenta? Regístrate aquí",
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

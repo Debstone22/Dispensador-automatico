@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'firebase_service.dart';
 import 'menu_inferior.dart';
 import 'datos_medicamentos.dart';
 
@@ -25,25 +23,8 @@ class PantallaGestionNombres extends StatefulWidget {
 
 class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
   final TextEditingController _controller = TextEditingController();
-  final FirebaseService _firebaseService = FirebaseService();
-
-  // Obtiene el UID único del usuario autenticado en Firebase
-  String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? '';
-
-  // VALIDACIÓN: Verifica si el rol tiene permisos (Familiar o Administrador)
-  bool _tienePermisosDeEdicion() {
-    return widget.rolUsuario == 'familiar' ||
-        widget.rolUsuario == 'administrador';
-  }
 
   void _mostrarDialogo({String? idDocumento, String? nombreActual}) {
-    // CANDADO DE SEGURIDAD 1: Si es paciente, bloquea la apertura del diálogo
-    if (!_tienePermisosDeEdicion()) {
-      _mostrarAvisoPermisos(
-          "Los pacientes no pueden añadir ni editar medicamentos.");
-      return;
-    }
-
     if (idDocumento != null && nombreActual != null) {
       _controller.text = nombreActual;
     } else {
@@ -69,14 +50,15 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
               if (_controller.text.isNotEmpty) {
                 try {
                   if (idDocumento == null) {
-                    // Guarda insertando el id_usuario correspondiente
-                    await _firebaseService.agregarMedicamento(
-                      userId: _currentUserId,
-                      nombrePastilla: _controller.text,
-                    );
+                    await firestoreInstance.collection('pastillas').add({
+                      'nombre_pastilla': _controller.text,
+                      'descripcion_pastillas':
+                          'Medicamento registrado desde la app',
+                      'recomendaciones_pastillas':
+                          'Sin recomendaciones adicionales'
+                    });
                   } else {
-                    // Actualiza el nombre del medicamento existente
-                    await FirebaseFirestore.instance
+                    await firestoreInstance
                         .collection('pastillas')
                         .doc(idDocumento)
                         .update({'nombre_pastilla': _controller.text});
@@ -101,21 +83,8 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
     );
   }
 
-  // FUNCIÓN AUXILIAR: Muestra un SnackBar si un paciente intenta burlar la seguridad
-  void _mostrarAvisoPermisos(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensaje),
-        backgroundColor: Colors.deepOrange,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Variable booleana para identificar de forma limpia si es paciente
-    final bool esPaciente = widget.rolUsuario == 'paciente';
-
     return Scaffold(
       backgroundColor: const Color(0xFFF1F8E9),
       appBar: AppBar(
@@ -132,8 +101,7 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
           children: [
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: _firebaseService
-                    .streamMedicamentosPorUsuario(_currentUserId),
+                stream: firestoreInstance.collection('pastillas').snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -141,10 +109,10 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return const Center(
-                      child: Text("No tienes medicamentos registrados"),
+                      child: Text("No hay medicamentos en Firebase"),
                     );
                   }
-
+                  
                   nombresPastillasGlobal = snapshot.data!.docs.map((doc) {
                     final datos = doc.data() as Map<String, dynamic>?;
                     if (datos == null) return 'Sin nombre';
@@ -186,50 +154,40 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
                             nombreMedicamento,
                             style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
-                          // CANDADO VISUAL 1: Oculta por completo la sección de botones si es paciente
-                          trailing: esPaciente
-                              ? null
-                              : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.edit,
-                                          color: Colors.blue),
-                                      onPressed: () => _mostrarDialogo(
-                                        idDocumento: idDoc,
-                                        nombreActual: nombreMedicamento,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete,
-                                          color: Colors.redAccent),
-                                      onPressed: () async {
-                                        // CANDADO DE SEGURIDAD 2: Protección extra antes de borrar en Firebase
-                                        if (!_tienePermisosDeEdicion()) {
-                                          _mostrarAvisoPermisos(
-                                              "No tienes permisos para eliminar.");
-                                          return;
-                                        }
-
-                                        try {
-                                          await FirebaseFirestore.instance
-                                              .collection('pastillas')
-                                              .doc(idDoc)
-                                              .delete();
-                                        } catch (e) {
-                                          if (mounted) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                  content: Text(
-                                                      "Error al eliminar: $e")),
-                                            );
-                                          }
-                                        }
-                                      },
-                                    ),
-                                  ],
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon:
+                                    const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () => _mostrarDialogo(
+                                  idDocumento: idDoc,
+                                  nombreActual: nombreMedicamento,
                                 ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.redAccent),
+                                onPressed: () async {
+                                  try {
+                                    await firestoreInstance
+                                        .collection('pastillas')
+                                        .doc(idDoc)
+                                        .delete();
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content:
+                                                Text("Error al eliminar: $e")),
+                                      );
+                                    }
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -240,14 +198,11 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
           ],
         ),
       ),
-      // CANDADO VISUAL 2: Si el usuario es un paciente, el botón de añadir no se renderiza (null)
-      floatingActionButton: esPaciente
-          ? null
-          : FloatingActionButton(
-              backgroundColor: const Color(0xFF4CAF50),
-              onPressed: () => _mostrarDialogo(),
-              child: const Icon(Icons.add, color: Colors.white),
-            ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF4CAF50),
+        onPressed: () => _mostrarDialogo(),
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
       bottomNavigationBar: MenuInferior(
         nombreUsuario: widget.nombreUsuario,
         sexoUsuario: widget.sexoUsuario,
