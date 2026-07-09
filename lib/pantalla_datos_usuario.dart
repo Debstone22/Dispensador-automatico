@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart'; // Necesario para los formatters de texto
+import 'package:flutter/services.dart'; 
 
 class PantallaDatosUsuario extends StatefulWidget {
   final String pacienteId;
@@ -29,7 +29,7 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
 
   bool _mostrarTodosLosPacientes = false;
 
-  // Controladores
+  
   final _nombreUserCtrl = TextEditingController();
   final _apellidoUserCtrl = TextEditingController();
   final _telefonoUserCtrl = TextEditingController();
@@ -64,7 +64,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
     super.dispose();
   }
 
-  // ➕ DIÁLOGO: AÑADIR PACIENTE CON VALIDACIONES SOLICITADAS
   void _mostrarDialogoAnadir() {
     _nombreNuevoCtrl.clear();
     _apellidoNuevoCtrl.clear();
@@ -87,7 +86,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-        // StatefulBuilder para que el dropdown funcione dentro del diálogo
         builder: (context, setDialogState) => AlertDialog(
           title: const Text('Añadir Nuevo Paciente'),
           content: SingleChildScrollView(
@@ -114,8 +112,8 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                       hintText: '999888777'),
                   keyboardType: TextInputType.phone,
                   inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly, // Solo números
-                    LengthLimitingTextInputFormatter(9), // Límite físico de 9
+                    FilteringTextInputFormatter.digitsOnly, 
+                    LengthLimitingTextInputFormatter(9), 
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -129,12 +127,11 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
                 const SizedBox(height: 12),
-                // 💉 DROPDOWN TIPO DE SANGRE
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(
                       labelText: 'Tipo de Sangre',
                       border: OutlineInputBorder()),
-                  value: sangreSeleccionada,
+                  initialValue: sangreSeleccionada,
                   items: opcionesSangre
                       .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                       .toList(),
@@ -156,7 +153,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                 child: const Text('Cancelar')),
             ElevatedButton(
               onPressed: () async {
-                // 1️⃣ VALIDACIÓN: Límite de 4 pacientes
                 final querySnapshot = await _firestore
                     .collection('pacientes')
                     .where('correo_familiar',
@@ -171,21 +167,18 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                   return;
                 }
 
-                // 2️⃣ VALIDACIÓN: Teléfono 9 dígitos
                 if (_telefonoNuevoCtrl.text.length != 9) {
                   _mostrarError(
                       'El teléfono debe tener exactamente 9 dígitos.');
                   return;
                 }
 
-                // 3️⃣ VALIDACIÓN: Edad entre 69 y 115
                 int edad = int.tryParse(_edadNuevoCtrl.text) ?? 0;
                 if (edad < 69 || edad > 115) {
                   _mostrarError('La edad permitida es entre 69 y 115 años.');
                   return;
                 }
 
-                // 4️⃣ VALIDACIÓN: Campos vacíos y Sangre
                 if (_nombreNuevoCtrl.text.isEmpty ||
                     sangreSeleccionada == null) {
                   _mostrarError(
@@ -193,7 +186,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                   return;
                 }
 
-                // SI TODO ESTÁ BIEN, GUARDAR
                 await _firestore.collection('pacientes').add({
                   'nombre_paciente': _nombreNuevoCtrl.text.trim(),
                   'apellido_paciente': _apellidoNuevoCtrl.text.trim(),
@@ -240,7 +232,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
     );
   }
 
-  // --- MÉTODOS EXISTENTES (EDITAR CUENTA, EDITAR PACIENTE, ELIMINAR) ---
 
   void _mostrarDialogoEditarCuenta() {
     _nombreUserCtrl.text = widget.nombreUsuario;
@@ -550,8 +541,9 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                   StreamBuilder<QuerySnapshot>(
                     stream: _firestore.collection('pacientes').snapshots(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData)
+                      if (!snapshot.hasData) {
                         return const Center(child: CircularProgressIndicator());
+                      }
 
                       var listaFiltrada = snapshot.data!.docs.where((doc) {
                         var data = doc.data() as Map<String, dynamic>;

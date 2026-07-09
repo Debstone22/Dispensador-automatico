@@ -118,7 +118,7 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: DropdownButtonFormField<String>(
-                  value: _sexoSeleccionado,
+                  initialValue: _sexoSeleccionado,
                   hint: const Row(
                     children: [
                       Icon(Icons.wc, color: Colors.grey),

@@ -67,8 +67,8 @@ class _BannerAnimadoState extends State<BannerAnimado> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  const Color(0xFF4CAF50).withOpacity(0.6),
-                  const Color(0xFFF1F8E9).withOpacity(0.9),
+                  const Color(0xFF4CAF50).withValues(alpha: 0.6),
+                  const Color(0xFFF1F8E9).withValues(alpha: 0.9),
                 ],
               ),
             ),
@@ -254,7 +254,7 @@ class _PantallaLoginState extends State<PantallaLogin> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: Column(

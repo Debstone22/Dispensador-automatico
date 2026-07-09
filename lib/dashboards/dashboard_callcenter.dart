@@ -3,9 +3,7 @@ import 'dart:async';
 import '../../auth_service.dart';
 import '../../login.dart';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// DASHBOARD CALL CENTER — Atención médica por llamada
-// ══════════════════════════════════════════════════════════════════════════════
+
 
 class DashboardCallCenter extends StatefulWidget {
   final SesionUsuario sesion;
@@ -129,7 +127,6 @@ class _DashboardCallCenterState extends State<DashboardCallCenter> {
   }
 }
 
-// ─── TAB 0: LISTA DE LLAMADAS PENDIENTES ─────────────────────────────────────
 class _TabLlamadas extends StatelessWidget {
   final void Function(Map<String, dynamic>) onLlamar;
   const _TabLlamadas({required this.onLlamar});
@@ -207,7 +204,6 @@ class _TabLlamadas extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ── Métricas rápidas ──────────────────────────────────────────────
         const Padding(
           padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Row(
@@ -233,7 +229,6 @@ class _TabLlamadas extends StatelessWidget {
           ),
         ),
 
-        // ── Lista de pacientes ────────────────────────────────────────────
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -247,7 +242,7 @@ class _TabLlamadas extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                   side: prioridad == 'alta'
-                      ? BorderSide(color: color.withOpacity(0.4))
+                      ? BorderSide(color: color.withValues(alpha: 0.4))
                       : BorderSide.none,
                 ),
                 child: Padding(
@@ -332,7 +327,6 @@ class _TabLlamadas extends StatelessWidget {
   }
 }
 
-// ─── TAB 1: HISTORIAL ─────────────────────────────────────────────────────────
 class _TabHistorial extends StatelessWidget {
   final _historial = const [
     {
@@ -407,7 +401,7 @@ class _TabHistorial extends StatelessWidget {
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(h['resultado']!,
@@ -424,7 +418,6 @@ class _TabHistorial extends StatelessWidget {
   }
 }
 
-// ─── WIDGET MINI MÉTRICA ──────────────────────────────────────────────────────
 class _MiniMetric extends StatelessWidget {
   final String label;
   final String value;
@@ -449,7 +442,7 @@ class _MiniMetric extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 22, fontWeight: FontWeight.bold, color: color)),
             Text(label,
-                style: TextStyle(fontSize: 10, color: color.withOpacity(0.8)),
+                style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.8)),
                 textAlign: TextAlign.center),
           ],
         ),
@@ -458,9 +451,7 @@ class _MiniMetric extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// PANTALLA DE LLAMADA EN CURSO (BottomSheet)
-// ══════════════════════════════════════════════════════════════════════════════
+
 
 class _PantallaLlamada extends StatefulWidget {
   final Map<String, dynamic> paciente;
@@ -532,7 +523,7 @@ class _PantallaLlamadaState extends State<_PantallaLlamada> {
               color: const Color(0xFFFAEEDA),
               shape: BoxShape.circle,
               border: Border.all(
-                  color: const Color(0xFFBA7517).withOpacity(0.3), width: 3),
+                  color: const Color(0xFFBA7517).withValues(alpha: 0.3), width: 3),
             ),
             child: Center(
               child: Text(
@@ -591,7 +582,6 @@ class _PantallaLlamadaState extends State<_PantallaLlamada> {
 
           const SizedBox(height: 32),
 
-          // Botones de acción
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

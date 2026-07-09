@@ -3,12 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // USUARIOS
-  // ──────────────────────────────────────────────────────────────────────────
 
-  /// Crea un paciente/familiar vinculado a un dispositivo.
-  /// El [userId] debe ser el UID que entrega Firebase Auth.
   Future<void> crearPaciente({
     required String userId,
     required String nombre,
@@ -24,33 +19,26 @@ class FirebaseService {
     });
   }
 
-  /// Lee el perfil completo de un usuario.
   Future<Map<String, dynamic>?> obtenerPerfil(String userId) async {
     final doc = await _db.collection('usuarios').doc(userId).get();
     return doc.exists ? doc.data() : null;
   }
 
-  /// Lista todos los usuarios con un rol determinado.
   Stream<QuerySnapshot> streamUsuariosPorRol(String rol) {
     return _db.collection('usuarios').where('rol', isEqualTo: rol).snapshots();
   }
 
-  /// Lista TODOS los usuarios (para el administrador).
   Stream<QuerySnapshot> streamTodosLosUsuarios() {
     return _db.collection('usuarios').snapshots();
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // DISPOSITIVOS Y SLOTS
-  // ──────────────────────────────────────────────────────────────────────────
+  
 
-  /// Crea el dispositivo principal con sus slots iniciales.
   Future<void> crearDispositivoConSlots({
     required String deviceId,
     required String pacienteNombre,
     required List<Map<String, dynamic>> slots,
   }) async {
-    // Documento raíz del hardware
     await _db.collection('dispositivos').doc(deviceId).set({
       'paciente_nombre': pacienteNombre,
       'estado_conexion': 'Conectado',
@@ -59,7 +47,6 @@ class FirebaseService {
       'alarma_activa': false,
     });
 
-    // Subcolección de slots
     for (int i = 0; i < slots.length; i++) {
       await _db
           .collection('dispositivos')
@@ -70,7 +57,6 @@ class FirebaseService {
     }
   }
 
-  /// Stream en tiempo real de los slots de un dispositivo.
   Stream<QuerySnapshot> streamSlots(String deviceId) {
     return _db
         .collection('dispositivos')
@@ -79,7 +65,6 @@ class FirebaseService {
         .snapshots();
   }
 
-  /// Actualiza el porcentaje restante de un slot (lo llama el Arduino vía Node.js).
   Future<void> actualizarCantidadSlot({
     required String deviceId,
     required String slotId,
@@ -93,21 +78,16 @@ class FirebaseService {
         .update({'cantidad_restante': nuevaCantidad});
   }
 
-  /// Stream del documento de un dispositivo (para ver estado de conexión, batería, etc.)
   Stream<DocumentSnapshot> streamDispositivo(String deviceId) {
     return _db.collection('dispositivos').doc(deviceId).snapshots();
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // HISTORIAL DE TOMAS
-  // ──────────────────────────────────────────────────────────────────────────
-
-  /// Registra una toma en el historial.
+  
   Future<void> registrarToma({
     required String dispositivoId,
     required String slotId,
     required String medicamento,
-    required String estadoToma, // 'Tomado' | 'Omitido' | 'No confirmado'
+    required String estadoToma, 
     String? pacienteId,
   }) async {
     await _db.collection('historial_tomas').add({
@@ -121,7 +101,6 @@ class FirebaseService {
     });
   }
 
-  /// Stream del historial de un dispositivo específico.
   Stream<QuerySnapshot> streamHistorialDispositivo(String dispositivoId) {
     return _db
         .collection('historial_tomas')
@@ -131,7 +110,6 @@ class FirebaseService {
         .snapshots();
   }
 
-  /// Historial de TODOS los dispositivos (para el especialista en monitoreo).
   Stream<QuerySnapshot> streamHistorialGeneral({int limite = 100}) {
     return _db
         .collection('historial_tomas')
@@ -140,11 +118,7 @@ class FirebaseService {
         .snapshots();
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // SEÑAL AL ARDUINO (comando de dispensación)
-  // ──────────────────────────────────────────────────────────────────────────
-
-  /// El app escribe aquí y el Arduino (vía Node.js) escucha este documento.
+  
   Future<void> enviarComandoDispensacion({
     required String deviceId,
     required String slotId,
@@ -153,11 +127,10 @@ class FirebaseService {
       'accion': 'dispensar',
       'slot_id': slotId,
       'timestamp': FieldValue.serverTimestamp(),
-      'confirmado_paciente': false, // El buzzer lo cambia a true
+      'confirmado_paciente': false, 
     });
   }
 
-  /// Confirma que el paciente está presente (lo activa el buzzer/sensor).
   Future<void> confirmarPresencia(String deviceId) async {
     await _db.collection('comandos').doc(deviceId).update({
       'confirmado_paciente': true,
@@ -165,9 +138,7 @@ class FirebaseService {
     });
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // ALERTAS
-  // ──────────────────────────────────────────────────────────────────────────
+  
 
   Stream<QuerySnapshot> streamAlertas({bool soloActivas = true}) {
     Query query = _db.collection('alertas');
@@ -182,11 +153,7 @@ class FirebaseService {
     });
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // MEDICAMENTOS (PASTILLAS) FILTRADOS POR USUARIO
-  // ──────────────────────────────────────────────────────────────────────────
-
-  /// Agrega un nuevo medicamento vinculado al usuario actual.
+  
   Future<void> agregarMedicamento({
     required String userId,
     required String nombrePastilla,
@@ -200,7 +167,6 @@ class FirebaseService {
     });
   }
 
-  /// Obtiene un Stream de las pastillas que le pertenecen ÚNICAMENTE al usuario.
   Stream<QuerySnapshot> streamMedicamentosPorUsuario(String userId) {
     return _db
         .collection('pastillas')

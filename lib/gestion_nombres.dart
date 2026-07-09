@@ -49,7 +49,6 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
                 decoration: const InputDecoration(labelText: "Nombre del Medicamento", border: OutlineInputBorder())
               ),
               const SizedBox(height: 15),
-              // StreamBuilder filtrado por correo_familiar
               StreamBuilder<QuerySnapshot>(
                 stream: _firestore
                     .collection('pacientes')
@@ -63,7 +62,7 @@ class _PantallaGestionNombresState extends State<PantallaGestionNombres> {
 
                   return DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: 'Asignar a Paciente', border: OutlineInputBorder()),
-                    value: (pacientes.any((p) => p.id == pacienteSeleccionado)) ? pacienteSeleccionado : null,
+                    initialValue: (pacientes.any((p) => p.id == pacienteSeleccionado)) ? pacienteSeleccionado : null,
                     isExpanded: true,
                     items: pacientes.map((doc) {
                       var data = doc.data() as Map<String, dynamic>;
