@@ -148,6 +148,9 @@ class AuthService {
   }
 
   Future<SesionUsuario> iniciarSesionGoogle() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+
+    await googleSignIn.signOut();
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
     if (googleUser == null) {
@@ -174,7 +177,7 @@ class AuthService {
       await docRef.set({
         'nombre_usuario': user.displayName ?? 'Usuario',
         'correo_usuario': user.email ?? '',
-        'rol_usuario': 'paciente',
+        'rol_usuario': 'familiar',
         'sexo_usuario': 'H',
         'creado_en': FieldValue.serverTimestamp(),
       });

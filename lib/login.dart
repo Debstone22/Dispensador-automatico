@@ -4,6 +4,9 @@ import 'auth_service.dart';
 import 'registro.dart';
 import 'role_router.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'terminos_condiciones.dart';
+import 'politica_privacidad.dart';
+import 'preguntas_frecuentes.dart';
 
 class BannerAnimado extends StatefulWidget {
   const BannerAnimado({super.key});
@@ -79,21 +82,20 @@ class _BannerAnimadoState extends State<BannerAnimado> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "MiniDoc",
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 62, 131, 65),
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  "Tu dispensador automatico en casa",
-                  style: TextStyle(
-                    color: Color.fromARGB(179, 41, 110, 49),
-                    fontSize: 14,
-                  ),
-                ),
+                //Text(
+                // style: TextStyle(
+                // color: Color.fromARGB(255, 62, 131, 65),
+                // fontSize: 24,
+                // fontWeight: FontWeight.bold,
+                //),
+                //),
+                //Text(
+                //"Tu dispensador automatico en casa",
+                //style: TextStyle(
+                //color: Color.fromARGB(179, 41, 110, 49),
+                //fontSize: 14,
+                //),
+                //),
               ],
             ),
           ),
@@ -243,7 +245,7 @@ class _PantallaLoginState extends State<PantallaLogin> {
                   ),
                   const SizedBox(height: 25),
                   const Text(
-                    "Bienvenido de nuevo",
+                    "Bienvenido a MiniDoc",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -392,21 +394,92 @@ class _PantallaLoginState extends State<PantallaLogin> {
                     label: const Text("Continuar con Facebook"),
                   ),
                   const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PantallaRegistro(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
                         ),
-                      );
-                    },
-                    child: const Text(
-                      "No tienes cuenta? Registrate aqui",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
+                        children: [
+                          const TextSpan(
+                            text: "Al continuar aceptas nuestros ",
+                          ),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const TerminosCondicionesPage(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Términos y Condiciones",
+                                style: TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const TextSpan(
+                            text: " y la ",
+                          ),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PoliticaPrivacidadPage(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Política de Privacidad",
+                                style: TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const TextSpan(
+                            text: ".\n",
+                          ),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PreguntasFrecuentes(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Preguntas frecuentes",
+                                style: TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

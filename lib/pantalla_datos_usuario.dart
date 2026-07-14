@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart'; 
+import 'package:flutter/services.dart';
 
 class PantallaDatosUsuario extends StatefulWidget {
   final String pacienteId;
@@ -29,7 +29,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
 
   bool _mostrarTodosLosPacientes = false;
 
-  
   final _nombreUserCtrl = TextEditingController();
   final _apellidoUserCtrl = TextEditingController();
   final _telefonoUserCtrl = TextEditingController();
@@ -95,13 +94,27 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                 TextField(
                   controller: _nombreNuevoCtrl,
                   decoration: const InputDecoration(
-                      labelText: 'Nombre', border: OutlineInputBorder()),
+                    labelText: 'Nombre',
+                    border: OutlineInputBorder(),
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]"),
+                    ),
+                    LengthLimitingTextInputFormatter(30),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _apellidoNuevoCtrl,
                   decoration: const InputDecoration(
                       labelText: 'Apellido', border: OutlineInputBorder()),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]"),
+                    ),
+                    LengthLimitingTextInputFormatter(40)
+                  ],
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -112,8 +125,8 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                       hintText: '999888777'),
                   keyboardType: TextInputType.phone,
                   inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly, 
-                    LengthLimitingTextInputFormatter(9), 
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(9),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -143,6 +156,11 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
                   controller: _alergiaNuevoCtrl,
                   decoration: const InputDecoration(
                       labelText: 'Alergias', border: OutlineInputBorder()),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]"),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -232,7 +250,6 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
     );
   }
 
-
   void _mostrarDialogoEditarCuenta() {
     _nombreUserCtrl.text = widget.nombreUsuario;
     showDialog(
@@ -286,10 +303,15 @@ class _PantallaDatosUsuarioState extends State<PantallaDatosUsuario> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-                controller: _nombreEditCtrl,
-                decoration: const InputDecoration(
-                    labelText: 'Nombre', border: OutlineInputBorder())),
-            const SizedBox(height: 12),
+              controller: _nombreEditCtrl,
+              decoration: const InputDecoration(
+                  labelText: 'Nombre', border: OutlineInputBorder()),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(
+                  RegExp(r"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]"),
+                ),
+              ],
+            ),
             TextField(
                 controller: _telefonoEditCtrl,
                 decoration: const InputDecoration(
