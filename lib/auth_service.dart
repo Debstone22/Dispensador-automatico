@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:google_sign_in/google_sign_in.dart';
 
 enum RolUsuario {
   administrador,
@@ -38,6 +38,7 @@ class AuthService {
     );
 
     final uid = credential.user!.uid;
+
     final doc = await _db.collection('usuario').doc(uid).get();
 
     if (!doc.exists) {
@@ -143,5 +144,52 @@ class AuthService {
     } catch (e) {
       throw Exception("Error al registrar: ${e.toString()}");
     }
+  }
+
+  Future<SesionUsuario> iniciarSesionGoogle() async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    if (googleUser == null) {
+      throw Exception("Inicio de sesion cancelado");
+    }
+
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final userCredential = await _auth.signInWithCredential(credential);
+
+    final user = userCredential.user!;
+
+    final docRef = _db.collection('usuario').doc(user.uid);
+
+    final doc = await docRef.get();
+
+    if (!doc.exists) {
+      await docRef.set({
+        'nombre_usuario': user.displayName ?? 'Usuario',
+        'correo_usuario': user.email ?? '',
+        'rol_usuario': 'paciente',
+        'sexo_usuario': 'H',
+        'creado_en': FieldValue.serverTimestamp(),
+      });
+    }
+
+    final nuevoDoc = await docRef.get();
+    final data = nuevoDoc.data()!;
+
+    return SesionUsuario(
+      uid: user.uid,
+      email: user.email ?? '',
+      nombre: data['nombre_usuario'] ?? 'Usuario',
+      sexo: data['sexo_usuario'] ?? 'H',
+      rol: _parsearRol(
+        (data['rol_usuario'] ?? '').toLowerCase(),
+      ),
+    );
   }
 }

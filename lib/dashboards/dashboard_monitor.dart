@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../auth_service.dart';
 import '../login.dart';
 
+
+
 class DashboardMonitor extends StatefulWidget {
   final SesionUsuario sesion;
   const DashboardMonitor({super.key, required this.sesion});
@@ -113,7 +115,6 @@ class _DashboardMonitorState extends State<DashboardMonitor> {
   }
 }
 
-
 class _TabPacientes extends StatefulWidget {
   @override
   State<_TabPacientes> createState() => _TabPacientesState();
@@ -190,7 +191,6 @@ class _TabPacientesState extends State<_TabPacientes> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ── Barra de búsqueda ────────────────────────────────────────────
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: TextField(
@@ -252,7 +252,7 @@ class _TabPacientesState extends State<_TabPacientes> {
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   leading: CircleAvatar(
-                    backgroundColor: color.withOpacity(0.12),
+                    backgroundColor: color.withValues(alpha: 0.12),
                     child: Text(
                       (p['nombre'] as String).substring(0, 2).toUpperCase(),
                       style:
@@ -266,7 +266,7 @@ class _TabPacientesState extends State<_TabPacientes> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
+                          color: color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -442,7 +442,7 @@ class _StockAlerta extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

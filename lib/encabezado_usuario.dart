@@ -19,7 +19,6 @@ class EncabezadoUsuario extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     final String urlImagen = (sexo == 'H')
         ? 'https://e7.pngegg.com/pngimages/348/800/png-clipart-man-wearing-blue-shirt-illustration-computer-icons-avatar-user-login-avatar-blue-child-thumbnail.png'
         : 'https://thumbs.dreamstime.com/b/mujer-de-render-d-png-trabajando-en-tecnolog%C3%ADa-avatar-digital-port%C3%A1til-contra-fondo-transparente-384935566.jpg';

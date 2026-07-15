@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
  
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
- 
-  // Usuarios
+
+
   Future<void> crearPaciente({
     required String userId,
     required String nombre,
@@ -18,24 +18,25 @@ class FirebaseService {
       'creado_en': FieldValue.serverTimestamp(),
     });
   }
- 
+
   Future<Map<String, dynamic>?> obtenerPerfil(String userId) async {
     final doc = await _db.collection('usuarios').doc(userId).get();
     return doc.exists ? doc.data() : null;
   }
- 
+
   Stream<QuerySnapshot> streamUsuariosPorRol(String rol) {
     return _db
         .collection('usuarios')
         .where('rol', isEqualTo: rol)
         .snapshots();
   }
- 
+
   Stream<QuerySnapshot> streamTodosLosUsuarios() {
     return _db.collection('usuarios').snapshots();
   }
- 
- 
+
+  
+
   Future<void> crearDispositivoConSlots({
     required String deviceId,
     required String pacienteNombre,
@@ -48,7 +49,7 @@ class FirebaseService {
       'nivel_bateria': 100,
       'alarma_activa': false,
     });
- 
+
     for (int i = 0; i < slots.length; i++) {
       await _db
           .collection('dispositivos')
@@ -58,7 +59,7 @@ class FirebaseService {
           .set(slots[i]);
     }
   }
- 
+
   Stream<QuerySnapshot> streamSlots(String deviceId) {
     return _db
         .collection('dispositivos')
@@ -66,7 +67,6 @@ class FirebaseService {
         .collection('slots')
         .snapshots();
   }
- 
 
   Future<void> actualizarCantidadSlot({
     required String deviceId,
@@ -80,16 +80,17 @@ class FirebaseService {
         .doc(slotId)
         .update({'cantidad_restante': nuevaCantidad});
   }
- 
+
   Stream<DocumentSnapshot> streamDispositivo(String deviceId) {
     return _db.collection('dispositivos').doc(deviceId).snapshots();
   }
- 
+
+  
   Future<void> registrarToma({
     required String dispositivoId,
     required String slotId,
     required String medicamento,
-    required String estadoToma,
+    required String estadoToma, 
     String? pacienteId,
   }) async {
     await _db.collection('historial_tomas').add({
@@ -102,7 +103,7 @@ class FirebaseService {
       'estado_toma': estadoToma,
     });
   }
- 
+
   Stream<QuerySnapshot> streamHistorialDispositivo(String dispositivoId) {
     return _db
         .collection('historial_tomas')
@@ -111,7 +112,7 @@ class FirebaseService {
         .limit(50)
         .snapshots();
   }
- 
+
   Stream<QuerySnapshot> streamHistorialGeneral({int limite = 100}) {
     return _db
         .collection('historial_tomas')
@@ -119,8 +120,8 @@ class FirebaseService {
         .limit(limite)
         .snapshots();
   }
- 
 
+  
   Future<void> enviarComandoDispensacion({
     required String deviceId,
     required String slotId,
@@ -132,17 +133,16 @@ class FirebaseService {
       'confirmado_paciente': false, 
     });
   }
- 
-  
+
   Future<void> confirmarPresencia(String deviceId) async {
     await _db.collection('comandos').doc(deviceId).update({
       'confirmado_paciente': true,
       'hora_confirmacion': FieldValue.serverTimestamp(),
     });
   }
- 
 
- 
+  
+
   Stream<QuerySnapshot> streamAlertas({bool soloActivas = true}) {
     Query query = _db.collection('alertas');
     if (soloActivas) query = query.where('resuelta', isEqualTo: false);
@@ -154,5 +154,26 @@ class FirebaseService {
       'resuelta': true,
       'resuelta_en': FieldValue.serverTimestamp(),
     });
+  }
+
+  
+  Future<void> agregarMedicamento({
+    required String userId,
+    required String nombrePastilla,
+  }) async {
+    await _db.collection('pastillas').add({
+      'id_usuario': userId,
+      'nombre_pastilla': nombrePastilla,
+      'descripcion_pastillas': 'Medicamento registrado desde la app',
+      'recomendaciones_pastillas': 'Sin recomendaciones adicionales',
+      'creado_en': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Stream<QuerySnapshot> streamMedicamentosPorUsuario(String userId) {
+    return _db
+        .collection('pastillas')
+        .where('id_usuario', isEqualTo: userId)
+        .snapshots();
   }
 }

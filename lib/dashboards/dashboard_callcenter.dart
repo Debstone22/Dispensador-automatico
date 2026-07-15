@@ -4,6 +4,7 @@ import '../../auth_service.dart';
 import '../../login.dart';
 
 
+
 class DashboardCallCenter extends StatefulWidget {
   final SesionUsuario sesion;
   const DashboardCallCenter({super.key, required this.sesion});
@@ -241,7 +242,7 @@ class _TabLlamadas extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                   side: prioridad == 'alta'
-                      ? BorderSide(color: color.withOpacity(0.4))
+                      ? BorderSide(color: color.withValues(alpha: 0.4))
                       : BorderSide.none,
                 ),
                 child: Padding(
@@ -400,7 +401,7 @@ class _TabHistorial extends StatelessWidget {
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(h['resultado']!,
@@ -441,7 +442,7 @@ class _MiniMetric extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 22, fontWeight: FontWeight.bold, color: color)),
             Text(label,
-                style: TextStyle(fontSize: 10, color: color.withOpacity(0.8)),
+                style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.8)),
                 textAlign: TextAlign.center),
           ],
         ),
@@ -449,6 +450,7 @@ class _MiniMetric extends StatelessWidget {
     );
   }
 }
+
 
 
 class _PantallaLlamada extends StatefulWidget {
@@ -521,7 +523,7 @@ class _PantallaLlamadaState extends State<_PantallaLlamada> {
               color: const Color(0xFFFAEEDA),
               shape: BoxShape.circle,
               border: Border.all(
-                  color: const Color(0xFFBA7517).withOpacity(0.3), width: 3),
+                  color: const Color(0xFFBA7517).withValues(alpha: 0.3), width: 3),
             ),
             child: Center(
               child: Text(
@@ -579,7 +581,6 @@ class _PantallaLlamadaState extends State<_PantallaLlamada> {
 
           const SizedBox(height: 32),
 
-          
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
