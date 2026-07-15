@@ -8,6 +8,14 @@ import 'pantalla_principal.dart';
 import 'dashboards/dashboard_admin.dart';
 import 'dashboards/dashboard_callcenter.dart';
 import 'dashboards/dashboard_monitor.dart';
+import 'dart:io';
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
