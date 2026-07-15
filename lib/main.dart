@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart'; 
 import 'firebase_options.dart'; 
@@ -6,6 +7,7 @@ import 'pantalla_principal.dart';
 import 'dashboards/dashboard_admin.dart';
 import 'dashboards/dashboard_callcenter.dart';
 import 'dashboards/dashboard_monitor.dart';
+import 'auth_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

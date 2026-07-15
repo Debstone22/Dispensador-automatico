@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firebase_service.dart';
 import 'menu_inferior.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class PantallaGestionNombres extends StatefulWidget {
   final String nombreUsuario;

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'menu_inferior.dart';
-import 'datos_medicamentos.dart';
 
 class PantallaConfiguracionSlots extends StatefulWidget {
   final String nombreUsuario;

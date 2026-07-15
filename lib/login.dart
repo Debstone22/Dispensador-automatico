@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'auth_service.dart';
 import 'registro.dart';
 import 'pantalla_principal.dart';
+import 'role_router.dart';
 
 class BannerAnimado extends StatefulWidget {
   const BannerAnimado({super.key});

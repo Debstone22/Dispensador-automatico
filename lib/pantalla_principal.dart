@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'menu_inferior.dart';
-import 'configuracion_slots.dart';
-import 'datos_medicamentos.dart';
 import 'encabezado_usuario.dart';
-import 'menu_inferior.dart';
+
 
 class PantallaPrincipal extends StatefulWidget {
   final String nombreUsuario;
@@ -25,7 +23,6 @@ class PantallaPrincipal extends StatefulWidget {
 }
 
 class _PantallaPrincipalState extends State<PantallaPrincipal> {
-  final FirebaseService _firebaseService = FirebaseService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _pacienteSeleccionadoId;
 
