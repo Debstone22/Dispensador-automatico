@@ -25,7 +25,7 @@ class PanelConexiones extends StatefulWidget {
 
 class _PanelConexionesState extends State<PanelConexiones> {
   // IP fija de tu ESP32 (puedes usar también "http://pastillero.local")
-  final String baseUrl = "http://192.168.0.48"; 
+  final String baseUrl = "http://10.126.234.37"; 
 
   // Variables de estado dinámicas
   bool _conectado = false;
