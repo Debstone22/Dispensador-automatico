@@ -558,7 +558,6 @@ class _PantallaLlamadaState extends State<_PantallaLlamada> {
 
           const SizedBox(height: 32),
 
-          // Motivo de la llamada
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 32),
             padding: const EdgeInsets.all(12),

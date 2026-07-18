@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'pantalla_datos_usuario.dart';
 
 class EncabezadoUsuario extends StatelessWidget {
-  final String pacienteId; // ID del documento en Firestore
-  final String nombre; // Nombre del usuario en sesión
-  final String sexo; // Sexo del usuario en sesión
-  final String correo; // Correo del usuario en sesión
-  final String rol; // Rol del usuario en sesión
+  final String pacienteId; 
+  final String nombre; 
+  final String sexo; 
+  final String correo;
+  final String rol; 
 
   const EncabezadoUsuario({
     super.key,

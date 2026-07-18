@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+ 
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
@@ -25,7 +25,10 @@ class FirebaseService {
   }
 
   Stream<QuerySnapshot> streamUsuariosPorRol(String rol) {
-    return _db.collection('usuarios').where('rol', isEqualTo: rol).snapshots();
+    return _db
+        .collection('usuarios')
+        .where('rol', isEqualTo: rol)
+        .snapshots();
   }
 
   Stream<QuerySnapshot> streamTodosLosUsuarios() {
@@ -145,7 +148,7 @@ class FirebaseService {
     if (soloActivas) query = query.where('resuelta', isEqualTo: false);
     return query.orderBy('creada_en', descending: true).snapshots();
   }
-
+ 
   Future<void> resolverAlerta(String alertaId) async {
     await _db.collection('alertas').doc(alertaId).update({
       'resuelta': true,
