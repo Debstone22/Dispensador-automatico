@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-<<<<<<< HEAD
-=======
+
 import 'esp32_service.dart'; // <--- IMPORTAMOS EL SERVICIO AQUÍ
->>>>>>> origin/rama-prueba
+
 import 'menu_inferior.dart';
 
 class PantallaConfiguracionSlots extends StatefulWidget {
